@@ -20,7 +20,7 @@ interface LoginPageProps {
 }
 
 export function LoginPage({ employees }: LoginPageProps) {
-  const { loginWithGoogle, loginWithEmployee, loginAsAdmin } = useAuth();
+  const { loginWithGoogle, loginWithEmployee } = useAuth();
   const [selectedNik, setSelectedNik] = useState<string>('');
   const [searchNik, setSearchNik] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -187,44 +187,57 @@ export function LoginPage({ employees }: LoginPageProps) {
           {/* TAB 2: NIK / EMPLOYEE ID SIGN-IN */}
           {activeTab === 'nik' && (
             <form onSubmit={handleNikSignIn} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Pilih Profil Karyawan:
-                </label>
-                <select
-                  value={selectedNik}
-                  onChange={(e) => setSelectedNik(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer"
-                >
-                  <option value="">-- Pilih dari Daftar Karyawan --</option>
-                  {employees.map((emp) => (
-                    <option key={emp.id} value={emp.nik}>
-                      [{emp.systemRole || (emp.role?.toLowerCase().includes('manager') ? 'Manager' : 'Karyawan')}] {emp.name} ({emp.nik}) - {emp.department}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {employees.length > 0 ? (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      Pilih Profil Karyawan Terdaftar:
+                    </label>
+                    <select
+                      value={selectedNik}
+                      onChange={(e) => setSelectedNik(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                    >
+                      <option value="">-- Pilih dari Daftar Karyawan --</option>
+                      {employees.map((emp) => (
+                        <option key={emp.id} value={emp.nik}>
+                          [{emp.systemRole || (emp.role?.toLowerCase().includes('manager') ? 'Manager' : 'Karyawan')}] {emp.name} ({emp.nik}) - {emp.department}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Atau Cari Nama / NIK:
-                </label>
-                <input
-                  type="text"
-                  placeholder="Contoh: EMP-2026-001 atau Budi..."
-                  value={searchNik}
-                  onChange={(e) => setSearchNik(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
-                />
-              </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      Atau Cari Nama / NIK:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Masukkan NIK atau Nama..."
+                      value={searchNik}
+                      onChange={(e) => setSearchNik(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+                    />
+                  </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>Masuk ke Kios Presensi</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+                  <button
+                    type="submit"
+                    className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>Masuk ke Kios Presensi</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </>
+              ) : (
+                <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center space-y-2">
+                  <p className="text-xs text-slate-300 font-medium">
+                    Belum ada data karyawan terdaftar di database.
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Silakan masuk menggunakan <strong>Akun Google</strong> di tab sebelah untuk mulai menambahkan data karyawan resmi di tab Kelola Karyawan.
+                  </p>
+                </div>
+              )}
             </form>
           )}
 
@@ -235,47 +248,6 @@ export function LoginPage({ employees }: LoginPageProps) {
               <span>{errorMessage}</span>
             </div>
           )}
-
-          {/* 1-CLICK DEMO LOGIN ACCOUNTS */}
-          <div className="mt-6 pt-5 border-t border-slate-800">
-            <span className="text-[11px] font-semibold text-slate-400 block mb-2.5 text-center">
-              Akses Cepat Login:
-            </span>
-
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={loginAsAdmin}
-                className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-amber-500/30 text-left transition cursor-pointer"
-              >
-                <div className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> Role Manager
-                </div>
-                <div className="text-[10px] text-slate-200 truncate mt-0.5 font-medium">
-                  Siti Rahmawati
-                </div>
-                <div className="text-[9px] text-amber-400/80">Akses Penuh (Edit, Hapus)</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  if (employees.length > 0) {
-                    loginWithEmployee(employees[0]);
-                  }
-                }}
-                className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-teal-500/30 text-left transition cursor-pointer"
-              >
-                <div className="text-[11px] font-bold text-teal-400 flex items-center gap-1">
-                  <User className="w-3.5 h-3.5" /> Role Karyawan
-                </div>
-                <div className="text-[10px] text-slate-200 truncate mt-0.5 font-medium">
-                  {employees[0]?.name || 'Budi Santoso'}
-                </div>
-                <div className="text-[9px] text-slate-400">Input Absen & Lihat Hasil</div>
-              </button>
-            </div>
-          </div>
         </div>
 
         <p className="mt-4 text-center text-[11px] text-slate-500">

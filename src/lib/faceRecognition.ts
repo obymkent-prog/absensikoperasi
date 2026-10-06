@@ -206,11 +206,12 @@ export async function detectFaceInVideo(
 }
 
 /**
- * Capture optimized JPEG snapshot from video stream
+ * Capture optimized JPEG snapshot from video stream matching preview orientation (WYSIWYG)
  */
 export function captureSnapshot(
   video: HTMLVideoElement,
-  watermarkText?: string
+  watermarkText?: string,
+  mirror: boolean = true
 ): string {
   const canvas = document.createElement('canvas');
   canvas.width = Math.min(640, video.videoWidth || 640);
@@ -218,10 +219,16 @@ export function captureSnapshot(
   const ctx = canvas.getContext('2d');
   if (!ctx) return '';
 
-  // Draw video frame
+  ctx.save();
+  if (mirror) {
+    // Horizontally flip the canvas draw so the photo output matches the mirrored camera preview (scale-x-[-1])
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+  }
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  ctx.restore();
 
-  // Add subtle biometric timestamp watermark at bottom
+  // Add subtle biometric timestamp watermark at bottom (upright, not flipped)
   if (watermarkText) {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
     ctx.fillRect(0, canvas.height - 32, canvas.width, 32);
@@ -230,5 +237,5 @@ export function captureSnapshot(
     ctx.fillText(watermarkText, 14, canvas.height - 11);
   }
 
-  return canvas.toDataURL('image/jpeg', 0.82);
+  return canvas.toDataURL('image/jpeg', 0.88);
 }

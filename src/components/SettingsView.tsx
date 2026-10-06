@@ -9,7 +9,6 @@ import {
   AlertCircle,
   LocateFixed,
   Save,
-  Send,
 } from 'lucide-react';
 import { OfficeSetting, NotificationSetting } from '../types';
 import { updateOfficeSettings } from '../lib/firestoreService';
@@ -138,25 +137,6 @@ export function SettingsView({
     onUpdateNotificationSetting(updated);
     soundPlayer.playChime('success');
     alert('Pengaturan notifikasi berhasil diperbarui!');
-  };
-
-  // Test Push Notifications
-  const handleTestCheckInPush = () => {
-    sendPushNotification(
-      '⏰ Pengingat Absensi Masuk Kerja',
-      `Selamat pagi! Jam kerja dimulai pukul ${workStartTime}. Segera lakukan presensi GPS & verifikasi wajah.`,
-      'checkin',
-      soundEnabled
-    );
-  };
-
-  const handleTestCheckOutPush = () => {
-    sendPushNotification(
-      '🏢 Pengingat Absensi Pulang Kerja',
-      `Waktu kerja telah berakhir (Pukul ${workEndTime}). Jangan lupa lakukan Absen Pulang sebelum meninggalkan area kantor!`,
-      'checkout',
-      soundEnabled
-    );
   };
 
   return (
@@ -473,34 +453,6 @@ export function SettingsView({
                 Simpan Jadwal Pengingat
               </button>
             </form>
-          </div>
-
-          {/* Test Push Notifications Section */}
-          <div className="mt-6 pt-5 border-t border-slate-800">
-            <span className="text-xs font-semibold text-slate-300 block mb-2.5 flex items-center gap-1.5">
-              <Send className="w-3.5 h-3.5 text-emerald-400" />
-              Uji Coba Push Notifikasi & Suara:
-            </span>
-
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={handleTestCheckInPush}
-                className="py-2.5 px-3 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <Bell className="w-3.5 h-3.5" />
-                <span>Tes Notif Masuk</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleTestCheckOutPush}
-                className="py-2.5 px-3 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-xl text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <Bell className="w-3.5 h-3.5" />
-                <span>Tes Notif Pulang</span>
-              </button>
-            </div>
           </div>
         </div>
       </div>

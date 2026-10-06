@@ -26,21 +26,15 @@ import {
   subscribeOfficeSettings,
   DEFAULT_OFFICE_SETTING,
   DEFAULT_NOTIFICATION_SETTING,
-  INITIAL_EMPLOYEES,
 } from './lib/firestoreService';
 import { checkScheduledReminders } from './lib/notifications';
-
-const FALLBACK_EMPLOYEES: Employee[] = INITIAL_EMPLOYEES.map((e, i) => ({
-  id: `emp-${i + 1}`,
-  ...e,
-}));
 
 function MainApp() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'kiosk' | 'recap' | 'employees' | 'settings'>('kiosk');
 
-  // Firestore Synced States with immediate initial defaults
-  const [employees, setEmployees] = useState<Employee[]>(FALLBACK_EMPLOYEES);
+  // Firestore Synced States (Real live data only)
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [attendances, setAttendances] = useState<AttendanceRecord[]>([]);
   const [officeSetting, setOfficeSetting] = useState<OfficeSetting>(DEFAULT_OFFICE_SETTING);
   const [notificationSetting, setNotificationSetting] = useState<NotificationSetting>(() => {
@@ -63,7 +57,7 @@ function MainApp() {
     seedInitialDataIfNeeded().catch(console.error);
 
     const unsubEmp = subscribeEmployees((list) => {
-      setEmployees(list.length > 0 ? list : FALLBACK_EMPLOYEES);
+      setEmployees(list);
     });
 
     const unsubAtt = subscribeAttendances((list) => {

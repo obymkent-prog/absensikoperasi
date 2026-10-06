@@ -24,9 +24,6 @@ interface AuthContextType {
   loading: boolean;
   loginWithGoogle: () => Promise<void>;
   loginWithEmployee: (employee: Employee) => void;
-  loginAsManager: () => void;
-  loginAsKaryawan: () => void;
-  loginAsAdmin: () => void; // alias
   logout: () => Promise<void>;
 }
 
@@ -111,34 +108,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('presensi_auth_user', JSON.stringify(appUser));
   };
 
-  const loginAsManager = () => {
-    const appUser: AppUser = {
-      uid: 'admin-hr-01',
-      displayName: 'Siti Rahmawati (HR Manager)',
-      email: 'siti.rahma@perusahaan.co.id',
-      photoURL: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
-      role: 'Manager',
-      nik: 'EMP-2026-002',
-      department: 'Human Resources (HRD)',
-    };
-    setUser(appUser);
-    localStorage.setItem('presensi_auth_user', JSON.stringify(appUser));
-  };
-
-  const loginAsKaryawan = () => {
-    const appUser: AppUser = {
-      uid: 'emp-1',
-      displayName: 'Budi Santoso',
-      email: 'budi.santoso@perusahaan.co.id',
-      photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-      role: 'Karyawan',
-      nik: 'EMP-2026-001',
-      department: 'Teknologi Informasi',
-    };
-    setUser(appUser);
-    localStorage.setItem('presensi_auth_user', JSON.stringify(appUser));
-  };
-
   const logout = async () => {
     try {
       await fbSignOut(auth);
@@ -159,9 +128,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         loginWithGoogle,
         loginWithEmployee,
-        loginAsManager,
-        loginAsKaryawan,
-        loginAsAdmin: loginAsManager,
         logout,
       }}
     >

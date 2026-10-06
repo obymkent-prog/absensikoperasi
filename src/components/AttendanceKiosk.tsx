@@ -190,6 +190,7 @@ export function AttendanceKiosk({
           video: {
             width: { ideal: 640 },
             height: { ideal: 480 },
+            aspectRatio: { ideal: 4 / 3 },
             facingMode: 'user',
           },
           audio: false,
@@ -542,8 +543,8 @@ export function AttendanceKiosk({
             </button>
           </div>
 
-          {/* Video Feed Box */}
-          <div className="relative aspect-video w-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center shadow-inner">
+          {/* Video Feed Box - Proportional 4:3 Aspect Ratio (Not squished/gepeng) */}
+          <div className="relative aspect-[4/3] max-h-[460px] w-full bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 flex items-center justify-center shadow-2xl">
             {cameraActive ? (
               <>
                 <video
@@ -558,29 +559,39 @@ export function AttendanceKiosk({
                   className="absolute inset-0 w-full h-full pointer-events-none scale-x-[-1]"
                 />
 
-                {/* Face Scanning HUD Overlay */}
-                <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
+                {/* Face Scanning HUD Overlay - Ergonomic Human Proportions */}
+                <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-4">
+                  {/* Proportional Biometric Face Target (1:1.35 Golden Ratio) */}
                   <div
-                    className={`w-52 h-64 border-2 rounded-3xl transition-all duration-300 flex flex-col items-center justify-between p-3 ${
+                    className={`relative w-48 sm:w-56 h-64 sm:h-74 rounded-[42px] border-2 transition-all duration-300 flex flex-col items-center justify-between p-3.5 ${
                       detectedFace
-                        ? 'border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.35)] bg-emerald-500/5'
-                        : 'border-slate-600/60 border-dashed'
+                        ? 'border-emerald-400 bg-emerald-500/10 shadow-[0_0_30px_rgba(16,185,129,0.35)]'
+                        : 'border-slate-500/60 border-dashed bg-slate-950/20'
                     }`}
                   >
-                    <span className="text-[10px] font-mono uppercase bg-slate-950/80 px-2 py-0.5 rounded-full text-slate-300">
+                    {/* High-tech Corner Brackets */}
+                    <div className="absolute -top-1.5 -left-1.5 w-4 h-4 border-t-2 border-l-2 border-emerald-400 rounded-tl-lg"></div>
+                    <div className="absolute -top-1.5 -right-1.5 w-4 h-4 border-t-2 border-r-2 border-emerald-400 rounded-tr-lg"></div>
+                    <div className="absolute -bottom-1.5 -left-1.5 w-4 h-4 border-b-2 border-l-2 border-emerald-400 rounded-bl-lg"></div>
+                    <div className="absolute -bottom-1.5 -right-1.5 w-4 h-4 border-b-2 border-r-2 border-emerald-400 rounded-br-lg"></div>
+
+                    {/* Laser Scan Line Animation */}
+                    <div className="absolute inset-x-3 top-1/2 -translate-y-1/2 h-0.5 bg-gradient-to-r from-transparent via-emerald-400/80 to-transparent animate-pulse"></div>
+
+                    <span className="text-[10px] font-mono tracking-wider uppercase bg-slate-950/85 px-2.5 py-0.5 rounded-full text-slate-300 border border-slate-700/80 shadow-sm">
                       Area Wajah
                     </span>
 
                     <span
-                      className={`text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-md ${
+                      className={`text-xs font-bold px-3 py-1 rounded-full shadow-lg backdrop-blur-md transition-colors ${
                         detectedFace
-                          ? 'bg-emerald-500/80 text-slate-950 font-mono'
-                          : 'bg-slate-900/80 text-slate-400'
+                          ? 'bg-emerald-500 text-slate-950 font-mono shadow-emerald-500/25'
+                          : 'bg-slate-900/90 text-slate-300 border border-slate-700'
                       }`}
                     >
                       {detectedFace
-                        ? `Cocok (${detectedFace.confidence}%)`
-                        : 'Posisikan Wajah Anda'}
+                        ? `✓ Wajah Terdeteksi (${detectedFace.confidence}%)`
+                        : 'Posisikan Wajah di Tengah'}
                     </span>
                   </div>
                 </div>
@@ -590,18 +601,18 @@ export function AttendanceKiosk({
                   <div className="flex items-center space-x-2">
                     <span
                       className={`w-2.5 h-2.5 rounded-full ${
-                        detectedFace ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'
+                        detectedFace ? 'bg-emerald-400 animate-ping' : 'bg-amber-400 animate-pulse'
                       }`}
                     ></span>
                     <span className="text-slate-300 font-medium">
                       {detectedFace
-                        ? 'Wajah Terdeteksi Siap Diverifikasi'
-                        : 'Mencari deteksi wajah di kamera...'}
+                        ? 'Wajah Siap Diverifikasi'
+                        : 'Arahkan wajah tegak ke kamera...'}
                     </span>
                   </div>
 
-                  <span className="font-mono text-emerald-400 font-semibold text-[11px]">
-                    Face AI Active
+                  <span className="font-mono text-emerald-400 font-semibold text-[11px] bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                    Proposional 4:3
                   </span>
                 </div>
               </>
@@ -988,10 +999,15 @@ export function AttendanceKiosk({
                   />
                   <canvas ref={enrollCanvasRef} className="hidden" />
 
-                  {/* Face Guide Oval */}
-                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                    <div className="w-48 h-60 border-2 border-emerald-400/60 rounded-full border-dashed flex flex-col items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-                      <span className="text-[11px] bg-slate-950/80 text-emerald-300 px-2.5 py-0.5 rounded-full font-mono">
+                  {/* Face Guide Oval - Proportional Biometric Framing */}
+                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-3">
+                    <div className="relative w-48 h-62 border-2 border-emerald-400/80 rounded-[40px] flex flex-col items-center justify-between p-3 shadow-[0_0_25px_rgba(16,185,129,0.25)] bg-emerald-500/5">
+                      <div className="absolute -top-1 -left-1 w-3.5 h-3.5 border-t-2 border-l-2 border-emerald-400 rounded-tl-md"></div>
+                      <div className="absolute -top-1 -right-1 w-3.5 h-3.5 border-t-2 border-r-2 border-emerald-400 rounded-tr-md"></div>
+                      <div className="absolute -bottom-1 -left-1 w-3.5 h-3.5 border-b-2 border-l-2 border-emerald-400 rounded-bl-md"></div>
+                      <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 border-b-2 border-r-2 border-emerald-400 rounded-br-md"></div>
+
+                      <span className="text-[10px] bg-slate-950/85 text-emerald-300 px-2.5 py-0.5 rounded-full font-mono border border-emerald-500/30">
                         Posisikan Wajah
                       </span>
                     </div>

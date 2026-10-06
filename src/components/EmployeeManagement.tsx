@@ -350,7 +350,31 @@ export function EmployeeManagement({
 
       {/* Employee Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredEmployees.map((emp) => {
+        {filteredEmployees.length === 0 ? (
+          <div className="col-span-full py-16 px-6 bg-slate-900 border border-slate-800 rounded-3xl text-center space-y-3 shadow-xl">
+            <Users className="w-12 h-12 text-slate-600 mx-auto" />
+            <h3 className="text-base font-bold text-white">Belum Ada Data Karyawan</h3>
+            <p className="text-xs text-slate-400 max-w-md mx-auto">
+              {isManager
+                ? 'Database karyawan masih bersih tanpa data dummy. Klik tombol "Tambah Karyawan Baru" untuk mulai mendaftarkan karyawan pertama.'
+                : 'Belum ada data karyawan terdaftar. Hubungi Manager untuk mendaftarkan akun Anda.'}
+            </p>
+            {isManager && (
+              <button
+                type="button"
+                onClick={() => {
+                  resetForm();
+                  setIsAddModalOpen(true);
+                }}
+                className="mt-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 cursor-pointer inline-flex items-center gap-2"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Tambah Karyawan Pertama</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          filteredEmployees.map((emp) => {
           const empRole: UserRole =
             emp.systemRole || (emp.role?.toLowerCase().includes('manager') ? 'Manager' : 'Karyawan');
 
@@ -475,7 +499,7 @@ export function EmployeeManagement({
               )}
             </div>
           );
-        })}
+        }))}
       </div>
 
       {/* Modal: Tambah Karyawan Baru / Edit Data Karyawan */}
