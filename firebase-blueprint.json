@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "Employee": {
+      "title": "Employee",
+      "description": "Master data karyawan untuk sistem absensi dan pengenalan wajah",
+      "type": "object",
+      "properties": {
+        "nik": { "type": "string", "maxLength": 30 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 100 },
+        "department": { "type": "string", "maxLength": 50 },
+        "role": { "type": "string", "maxLength": 50 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "photoUrl": { "type": "string", "maxLength": 500 },
+        "hasFaceRegistered": { "type": "boolean" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["nik", "name", "department", "isActive"]
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "description": "Catatan data absensi harian karyawan dengan GPS dan verifikasi wajah",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string", "maxLength": 64 },
+        "employeeNik": { "type": "string", "maxLength": 30 },
+        "employeeName": { "type": "string", "maxLength": 100 },
+        "department": { "type": "string", "maxLength": 50 },
+        "date": { "type": "string", "maxLength": 20 },
+        "checkInTime": { "type": "string", "maxLength": 30 },
+        "checkOutTime": { "type": "string", "maxLength": 30 },
+        "type": { "type": "string", "maxLength": 20 },
+        "status": { "type": "string", "maxLength": 30 },
+        "locationLat": { "type": "number" },
+        "locationLng": { "type": "number" },
+        "distanceToOfficeMeters": { "type": "number" },
+        "isWithinGeofence": { "type": "boolean" },
+        "verificationConfidence": { "type": "number" },
+        "photoSnapshot": { "type": "string", "maxLength": 20000 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["employeeId", "employeeName", "date", "checkInTime", "status"]
+    },
+    "OfficeSetting": {
+      "title": "OfficeSetting",
+      "description": "Konfigurasi koordinat kantor GPS geofencing dan jam kerja",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "address": { "type": "string", "maxLength": 200 },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "radiusMeters": { "type": "number" },
+        "workStartTime": { "type": "string", "maxLength": 10 },
+        "workEndTime": { "type": "string", "maxLength": 10 },
+        "lateToleranceMinutes": { "type": "number" },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["name", "latitude", "longitude", "radiusMeters", "workStartTime", "workEndTime"]
+    },
+    "NotificationSetting": {
+      "title": "NotificationSetting",
+      "description": "Pengaturan jadwal notifikasi push masuk dan pulang kerja",
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "checkInReminderTime": { "type": "string", "maxLength": 10 },
+        "checkOutReminderTime": { "type": "string", "maxLength": 10 },
+        "soundEnabled": { "type": "boolean" },
+        "desktopPushEnabled": { "type": "boolean" },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["enabled", "checkInReminderTime", "checkOutReminderTime"]
+    }
+  },
+  "firestore": {
+    "/employees/{employeeId}": {
+      "schema": { "$ref": "Employee" },
+      "description": "Data master karyawan terdaftar"
+    },
+    "/attendances/{attendanceId}": {
+      "schema": { "$ref": "Attendance" },
+      "description": "Data rekap log absensi harian karyawan"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "OfficeSetting" },
+      "description": "Data konfigurasi kantor dan aturan absensi"
+    }
+  }
+}

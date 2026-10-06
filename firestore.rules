@@ -1,0 +1,76 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidEmployee(data) {
+      return data.nik is string && data.nik.size() > 0 && data.nik.size() <= 30 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.department is string && data.department.size() > 0 && data.department.size() <= 50 &&
+             data.isActive is bool;
+    }
+
+    function isValidAttendance(data) {
+      return data.employeeId is string && data.employeeId.size() > 0 && data.employeeId.size() <= 64 &&
+             data.employeeName is string && data.employeeName.size() > 0 && data.employeeName.size() <= 100 &&
+             data.date is string && data.date.size() > 0 && data.date.size() <= 20 &&
+             data.checkInTime is string && data.checkInTime.size() > 0 && data.checkInTime.size() <= 30 &&
+             data.status is string && data.status.size() > 0 && data.status.size() <= 30;
+    }
+
+    function isValidSetting(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.latitude is number &&
+             data.longitude is number &&
+             data.radiusMeters is number;
+    }
+
+    // Employees Collection
+    match /employees/{employeeId} {
+      allow read: if true;
+      allow create: if isValidId(employeeId) && isValidEmployee(incoming());
+      allow update: if isValidId(employeeId) && isValidEmployee(incoming());
+      allow delete: if isValidId(employeeId);
+    }
+
+    // Attendances Collection
+    match /attendances/{attendanceId} {
+      allow read: if true;
+      allow create: if isValidId(attendanceId) && isValidAttendance(incoming());
+      allow update: if isValidId(attendanceId) && isValidAttendance(incoming());
+      allow delete: if isValidId(attendanceId);
+    }
+
+    // Settings Collection (Office geofence & notification configs)
+    match /settings/{settingId} {
+      allow read: if true;
+      allow create, update: if isValidId(settingId) && isValidSetting(incoming());
+      allow delete: if false;
+    }
+
+    // Health / Connection Test
+    match /test/{docId} {
+      allow read: if true;
+    }
+  }
+}

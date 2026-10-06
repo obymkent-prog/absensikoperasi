@@ -1,0 +1,9 @@
+{
+  "name": "Presensi Pintar GPS & Face Recognition",
+  "description": "Aplikasi presensi karyawan cerdas berbasis lokasi GPS geofencing, verifikasi wajah real-time, dashboard rekapitulasi ekspor Excel, push notifikasi, dan database Firebase Firestore.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
