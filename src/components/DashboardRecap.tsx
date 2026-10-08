@@ -13,9 +13,15 @@ import {
   ExternalLink,
   ChevronDown,
   X,
+  Pencil,
+  Trash2,
+  AlertTriangle,
+  Loader2,
+  Check,
 } from 'lucide-react';
-import { AttendanceRecord, OfficeSetting, Employee } from '../types';
+import { AttendanceRecord, OfficeSetting, Employee, AttendanceStatus, WorkType } from '../types';
 import { exportAttendancesToExcel } from '../lib/excelExport';
+import { updateAttendanceRecord, deleteAttendanceRecord } from '../lib/firestoreService';
 import { useAuth } from '../context/AuthContext';
 
 interface DashboardRecapProps {
@@ -71,6 +77,105 @@ export function DashboardRecap({ attendances, officeSetting, employees = [] }: D
   } | null>(null);
 
   const [isExporting, setIsExporting] = useState<boolean>(false);
+
+  // Manager Edit State
+  const [editingRecord, setEditingRecord] = useState<AttendanceRecord | null>(null);
+  const [editDate, setEditDate] = useState<string>('');
+  const [editCheckInTime, setEditCheckInTime] = useState<string>('');
+  const [editCheckOutTime, setEditCheckOutTime] = useState<string>('');
+  const [editType, setEditType] = useState<WorkType>('wfo');
+  const [editStatus, setEditStatus] = useState<AttendanceStatus>('tepat_waktu');
+  const [editIsWithinGeofence, setEditIsWithinGeofence] = useState<boolean>(true);
+  const [editDistance, setEditDistance] = useState<number>(0);
+  const [editNotes, setEditNotes] = useState<string>('');
+  const [isSavingEdit, setIsSavingEdit] = useState<boolean>(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  // Manager Delete State
+  const [deletingRecord, setDeletingRecord] = useState<AttendanceRecord | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // Toast / notification feedback
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  const handleOpenEdit = (record: AttendanceRecord) => {
+    setEditingRecord(record);
+    setEditDate(record.date || '');
+    setEditCheckInTime(record.checkInTime || '');
+    setEditCheckOutTime(record.checkOutTime || '');
+    setEditType(record.type || 'wfo');
+    setEditStatus(record.status || 'tepat_waktu');
+    setEditIsWithinGeofence(record.isWithinGeofence ?? true);
+    setEditDistance(record.distanceToOfficeMeters ?? 0);
+    setEditNotes(record.notes || '');
+    setEditError(null);
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingRecord) return;
+    if (!editDate || !editCheckInTime) {
+      setEditError('Tanggal dan Jam Masuk wajib diisi.');
+      return;
+    }
+
+    setIsSavingEdit(true);
+    setEditError(null);
+
+    try {
+      const updatePayload: Partial<AttendanceRecord> = {
+        date: editDate,
+        checkInTime: editCheckInTime.trim(),
+        type: editType,
+        status: editStatus,
+        isWithinGeofence: editIsWithinGeofence,
+        distanceToOfficeMeters: Number(editDistance) || 0,
+        notes: editNotes.trim(),
+      };
+
+      if (editCheckOutTime.trim()) {
+        updatePayload.checkOutTime = editCheckOutTime.trim();
+      }
+
+      await updateAttendanceRecord(editingRecord.id, updatePayload);
+      setToastMessage({
+        text: `Data presensi ${editingRecord.employeeName} (${editDate}) berhasil diperbarui!`,
+        type: 'success',
+      });
+      setEditingRecord(null);
+      setTimeout(() => setToastMessage(null), 4000);
+    } catch (err: any) {
+      setEditError(err?.message || 'Gagal menyimpan perubahan presensi.');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
+  const handleOpenDelete = (record: AttendanceRecord) => {
+    setDeletingRecord(record);
+    setDeleteError(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingRecord) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      await deleteAttendanceRecord(deletingRecord.id);
+      setToastMessage({
+        text: `Data presensi ${deletingRecord.employeeName} (${deletingRecord.date}) berhasil dihapus!`,
+        type: 'success',
+      });
+      setDeletingRecord(null);
+      setTimeout(() => setToastMessage(null), 4000);
+    } catch (err: any) {
+      setDeleteError(err?.message || 'Gagal menghapus data presensi.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Departments list for filter
   const departments = useMemo(() => {
@@ -389,12 +494,13 @@ export function DashboardRecap({ attendances, officeSetting, employees = [] }: D
                 <th className="py-3.5 px-4">Jarak & Geofence GPS</th>
                 <th className="py-3.5 px-4">Verifikasi Wajah</th>
                 <th className="py-3.5 px-4">Catatan</th>
+                {isManager && <th className="py-3.5 px-4 text-center">Aksi (Manager)</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-[#093478] text-slate-300">
               {filteredAttendances.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={isManager ? 9 : 8} className="py-12 text-center text-slate-400">
                     {isKaryawan
                       ? 'Belum ada catatan presensi untuk akun Anda pada periode ini. Silakan catat presensi di tab Kios Presensi (Absen).'
                       : 'Tidak ada catatan presensi yang sesuai dengan filter.'}
@@ -523,6 +629,32 @@ export function DashboardRecap({ attendances, officeSetting, employees = [] }: D
                     <td className="py-3 px-4 text-slate-400 max-w-xs truncate">
                       {rec.notes || '-'}
                     </td>
+
+                    {/* Manager Action Buttons (Edit & Hapus) */}
+                    {isManager && (
+                      <td className="py-3 px-4 whitespace-nowrap text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit(rec)}
+                            className="px-2.5 py-1.5 rounded-xl bg-[#00112C] hover:bg-[#B4E0E8] text-[#B4E0E8] hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8] transition text-xs font-semibold inline-flex items-center gap-1 cursor-pointer shadow-sm"
+                            title="Edit presensi karyawan ini"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDelete(rec)}
+                            className="px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30 transition text-xs font-semibold inline-flex items-center gap-1 cursor-pointer shadow-sm"
+                            title="Hapus presensi karyawan ini"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Hapus</span>
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
@@ -561,6 +693,324 @@ export function DashboardRecap({ attendances, officeSetting, employees = [] }: D
                 Tutup
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Attendance Record Modal (Manager Only) */}
+      {editingRecord && (
+        <div className="fixed inset-0 z-50 bg-[#00112C]/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+          <div className="bg-[#011E4D] border border-[#093478] rounded-3xl p-6 max-w-xl w-full shadow-2xl relative my-8">
+            <button
+              onClick={() => {
+                if (!isSavingEdit) setEditingRecord(null);
+              }}
+              className="absolute top-5 right-5 p-2 rounded-xl bg-[#00112C] hover:bg-[#B4E0E8] text-slate-300 hover:text-[#011E4D] cursor-pointer transition border border-[#093478] hover:border-[#B4E0E8]"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-2xl bg-[#00112C] text-[#B4E0E8] border border-[#093478]">
+                <Pencil className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Edit Rekapitulasi Kehadiran</h3>
+                <p className="text-xs text-slate-300">
+                  Perbarui catatan presensi karyawan sebagai Manager
+                </p>
+              </div>
+            </div>
+
+            {/* Employee Card info */}
+            <div className="p-3.5 rounded-2xl bg-[#00112C]/90 border border-[#093478] flex items-center gap-3.5 mb-5">
+              {editingRecord.photoSnapshot ? (
+                <img
+                  src={editingRecord.photoSnapshot}
+                  alt={editingRecord.employeeName}
+                  className="w-12 h-12 rounded-xl object-cover border border-[#093478] shrink-0"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-xl bg-[#011E4D] border border-[#093478] flex items-center justify-center text-[#B4E0E8] font-bold text-sm shrink-0">
+                  {editingRecord.employeeName.slice(0, 2).toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-bold text-white truncate">{editingRecord.employeeName}</div>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 mt-0.5">
+                  <span className="font-mono text-slate-300">NIK: {editingRecord.employeeNik}</span>
+                  <span>•</span>
+                  <span className="text-[#B4E0E8]">{editingRecord.department}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Error Banner */}
+            {editError && (
+              <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                <span>{editError}</span>
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSaveEdit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Tanggal */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Tanggal Presensi <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={editDate}
+                    onChange={(e) => setEditDate(e.target.value)}
+                    className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#B4E0E8]"
+                  />
+                </div>
+
+                {/* Tipe Kehadiran */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Tipe Kehadiran
+                  </label>
+                  <select
+                    value={editType}
+                    onChange={(e) => setEditType(e.target.value as WorkType)}
+                    className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#B4E0E8] cursor-pointer"
+                  >
+                    <option value="wfo">WFO (Work From Office)</option>
+                    <option value="wfh">WFH (Work From Home)</option>
+                    <option value="dinas">Dinas Luar Kantor</option>
+                  </select>
+                </div>
+
+                {/* Jam Masuk */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Jam Masuk (Check-In) <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Contoh: 08:00:00"
+                    value={editCheckInTime}
+                    onChange={(e) => setEditCheckInTime(e.target.value)}
+                    className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#B4E0E8]"
+                  />
+                </div>
+
+                {/* Jam Pulang */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Jam Pulang (Check-Out)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Contoh: 17:00:00 (opsional)"
+                    value={editCheckOutTime}
+                    onChange={(e) => setEditCheckOutTime(e.target.value)}
+                    className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#B4E0E8]"
+                  />
+                </div>
+
+                {/* Status Kehadiran */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Status Kehadiran
+                  </label>
+                  <select
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value as AttendanceStatus)}
+                    className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#B4E0E8] cursor-pointer"
+                  >
+                    <option value="tepat_waktu">Tepat Waktu</option>
+                    <option value="terlambat">Terlambat</option>
+                    <option value="pulang_cepat">Pulang Cepat</option>
+                    <option value="lembur">Lembur</option>
+                  </select>
+                </div>
+
+                {/* Status Geofence GPS */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Status Geofence Lokasi
+                  </label>
+                  <select
+                    value={editIsWithinGeofence ? 'true' : 'false'}
+                    onChange={(e) => setEditIsWithinGeofence(e.target.value === 'true')}
+                    className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#B4E0E8] cursor-pointer"
+                  >
+                    <option value="true">Valid (Dalam Radius Kantor)</option>
+                    <option value="false">Luar Radius Kantor</option>
+                  </select>
+                </div>
+
+                {/* Jarak ke Kantor */}
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Jarak ke Kantor (meter)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={editDistance}
+                    onChange={(e) => setEditDistance(Number(e.target.value))}
+                    className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#B4E0E8]"
+                  />
+                </div>
+              </div>
+
+              {/* Catatan */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Catatan / Keterangan
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Keterangan perubahan atau catatan khusus..."
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#B4E0E8] resize-none"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-[#093478] flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  disabled={isSavingEdit}
+                  onClick={() => setEditingRecord(null)}
+                  className="px-4 py-2.5 rounded-xl bg-[#00112C] hover:bg-slate-800 text-slate-300 text-xs font-semibold transition border border-[#093478] cursor-pointer disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingEdit}
+                  className="px-5 py-2.5 rounded-xl bg-[#B4E0E8] hover:bg-white text-[#011E4D] text-xs font-bold transition shadow-md shadow-[#B4E0E8]/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isSavingEdit ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Simpan Perubahan</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal (Manager Only) */}
+      {deletingRecord && (
+        <div className="fixed inset-0 z-50 bg-[#00112C]/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-[#011E4D] border border-rose-500/40 rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
+            <button
+              onClick={() => {
+                if (!isDeleting) setDeletingRecord(null);
+              }}
+              className="absolute top-5 right-5 p-2 rounded-xl bg-[#00112C] hover:bg-rose-500 text-slate-300 hover:text-white cursor-pointer transition border border-[#093478] hover:border-rose-500"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/40">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Hapus Rekapitulasi Kehadiran</h3>
+                <p className="text-xs text-rose-300/80">Konfirmasi tindakan penghapusan data</p>
+              </div>
+            </div>
+
+            {/* Detail Box */}
+            <div className="p-4 rounded-2xl bg-[#00112C]/90 border border-[#093478] mb-4 space-y-2">
+              <div className="text-xs text-slate-400">Data yang akan dihapus:</div>
+              <div className="text-sm font-bold text-white">{deletingRecord.employeeName}</div>
+              <div className="text-xs text-slate-300 flex flex-wrap gap-x-3 gap-y-1 font-mono">
+                <span>NIK: {deletingRecord.employeeNik}</span>
+                <span>•</span>
+                <span>Tanggal: {deletingRecord.date}</span>
+              </div>
+              <div className="text-xs text-[#B4E0E8]">
+                Masuk: {deletingRecord.checkInTime} {deletingRecord.checkOutTime ? `• Pulang: ${deletingRecord.checkOutTime}` : ''}
+              </div>
+            </div>
+
+            {/* Warning Text */}
+            <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 mb-5 flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>
+                Catatan kehadiran ini akan dihapus permanen dari Firestore database dan tidak dapat dipulihkan kembali.
+              </span>
+            </div>
+
+            {deleteError && (
+              <div className="mb-4 p-3 bg-rose-500/20 border border-rose-500/50 rounded-xl text-xs text-rose-200">
+                {deleteError}
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setDeletingRecord(null)}
+                className="px-4 py-2.5 rounded-xl bg-[#00112C] hover:bg-slate-800 text-slate-300 text-xs font-semibold transition border border-[#093478] cursor-pointer disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleConfirmDelete}
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition shadow-lg shadow-rose-600/30 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Menghapus...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Ya, Hapus Presensi</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Toast Feedback */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div
+            className={`px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border animate-fade-in ${
+              toastMessage.type === 'success'
+                ? 'bg-[#011E4D] border-[#B4E0E8] text-[#B4E0E8]'
+                : 'bg-rose-950 border-rose-500 text-rose-200'
+            }`}
+          >
+            {toastMessage.type === 'success' ? (
+              <CheckCircle className="w-4 h-4 text-[#B4E0E8]" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 text-rose-400" />
+            )}
+            <span>{toastMessage.text}</span>
           </div>
         </div>
       )}

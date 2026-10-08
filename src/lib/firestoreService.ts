@@ -177,6 +177,37 @@ export async function recordCheckOut(
 }
 
 /**
+ * Update an existing Attendance Record (Manager feature)
+ */
+export async function updateAttendanceRecord(
+  attendanceId: string,
+  updatedData: Partial<AttendanceRecord>
+): Promise<void> {
+  const path = `attendances/${attendanceId}`;
+  try {
+    const payload: Record<string, any> = {
+      ...updatedData,
+      updatedAt: new Date().toISOString(),
+    };
+    await updateDoc(doc(db, 'attendances', attendanceId), payload);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
+  }
+}
+
+/**
+ * Delete an Attendance Record (Manager feature)
+ */
+export async function deleteAttendanceRecord(attendanceId: string): Promise<void> {
+  const path = `attendances/${attendanceId}`;
+  try {
+    await deleteDoc(doc(db, 'attendances', attendanceId));
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, path);
+  }
+}
+
+/**
  * Get / Subscribe Office Settings
  */
 export function subscribeOfficeSettings(callback: (setting: OfficeSetting) => void): () => void {
