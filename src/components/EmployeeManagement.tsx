@@ -265,9 +265,9 @@ export function EmployeeManagement({
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#011E4D]/90 border border-[#093478] rounded-3xl p-6 shadow-xl">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <div className="p-2.5 rounded-xl bg-[#00112C] text-[#B4E0E8] border border-[#093478]">
             <Users className="w-6 h-6" />
           </div>
           <div>
@@ -278,12 +278,12 @@ export function EmployeeManagement({
                   <ShieldCheck className="w-3.5 h-3.5" /> Akses Manager (Edit & Hapus Aktif)
                 </span>
               ) : (
-                <span className="text-[11px] bg-teal-500/20 text-teal-300 font-medium px-2 py-0.5 rounded-full border border-teal-500/30 flex items-center gap-1">
+                <span className="text-[11px] bg-[#022864] text-[#B4E0E8] font-medium px-2 py-0.5 rounded-full border border-[#B4E0E8]/30 flex items-center gap-1">
                   <User className="w-3.5 h-3.5" /> Akses Karyawan (Read-Only)
                 </span>
               )}
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-300 mt-0.5">
               Role Manager dapat mengelola, mengedit, dan menghapus data karyawan. Role Karyawan hanya dapat input absensi & melihat hasil.
             </p>
           </div>
@@ -295,7 +295,7 @@ export function EmployeeManagement({
               resetForm();
               setIsAddModalOpen(true);
             }}
-            className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-2 cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-bold text-xs shadow-lg shadow-[#B4E0E8]/20 transition flex items-center gap-2 cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             <span>Tambah Karyawan Baru</span>
@@ -305,7 +305,7 @@ export function EmployeeManagement({
 
       {/* Role Restriction Banner for Non-Managers */}
       {!isManager && (
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-xs text-amber-300 flex items-start gap-3">
+        <div className="bg-[#011E4D]/90 border border-amber-500/30 rounded-2xl p-4 text-xs text-amber-300 flex items-start gap-3">
           <ShieldAlert className="w-5 h-5 shrink-0 text-amber-400 mt-0.5" />
           <div className="space-y-1">
             <p className="font-bold">Akses Khusus Manager:</p>
@@ -318,15 +318,15 @@ export function EmployeeManagement({
       )}
 
       {/* Search & Filter Toolbar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="bg-[#011E4D]/90 border border-[#093478] rounded-2xl p-4 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative flex-1 w-full">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
           <input
             type="text"
             placeholder="Cari karyawan berdasarkan nama, NIK, jabatan, atau divisi..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+            className="w-full bg-[#00112C] border border-[#093478] rounded-xl pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#B4E0E8]"
           />
         </div>
 
@@ -335,7 +335,7 @@ export function EmployeeManagement({
           <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value as 'all' | 'Manager' | 'Karyawan')}
-            className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 font-medium focus:outline-none focus:border-emerald-500 cursor-pointer"
+            className="bg-[#00112C] border border-[#093478] rounded-xl px-3 py-2 text-xs text-slate-200 font-medium focus:outline-none focus:border-[#B4E0E8] cursor-pointer"
           >
             <option value="all">Semua Role</option>
             <option value="Manager">👑 Role Manager</option>
@@ -351,8 +351,8 @@ export function EmployeeManagement({
       {/* Employee Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredEmployees.length === 0 ? (
-          <div className="col-span-full py-16 px-6 bg-slate-900 border border-slate-800 rounded-3xl text-center space-y-3 shadow-xl">
-            <Users className="w-12 h-12 text-slate-600 mx-auto" />
+          <div className="col-span-full py-16 px-6 bg-[#011E4D]/90 border border-[#093478] rounded-3xl text-center space-y-3 shadow-xl">
+            <Users className="w-12 h-12 text-slate-500 mx-auto" />
             <h3 className="text-base font-bold text-white">Belum Ada Data Karyawan</h3>
             <p className="text-xs text-slate-400 max-w-md mx-auto">
               {isManager
@@ -366,7 +366,7 @@ export function EmployeeManagement({
                   resetForm();
                   setIsAddModalOpen(true);
                 }}
-                className="mt-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 cursor-pointer inline-flex items-center gap-2"
+                className="mt-2 px-5 py-2.5 bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-bold text-xs rounded-xl shadow-lg shadow-[#B4E0E8]/20 cursor-pointer inline-flex items-center gap-2"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>Tambah Karyawan Pertama</span>
@@ -381,7 +381,7 @@ export function EmployeeManagement({
           return (
             <div
               key={emp.id}
-              className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col justify-between hover:border-slate-700 transition relative"
+              className="bg-[#011E4D]/90 border border-[#093478] rounded-3xl p-5 shadow-xl flex flex-col justify-between hover:border-[#B4E0E8]/50 transition relative"
             >
               <div>
                 {/* Header with Avatar & Actions */}
@@ -393,11 +393,11 @@ export function EmployeeManagement({
                         'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
                       }
                       alt={emp.name}
-                      className="w-14 h-14 rounded-2xl object-cover border-2 border-slate-700 shadow-md"
+                      className="w-14 h-14 rounded-2xl object-cover border-2 border-[#093478] shadow-md"
                     />
                     {emp.hasFaceRegistered && (
                       <span
-                        className="absolute -bottom-1 -right-1 p-1 bg-emerald-500 text-slate-950 rounded-full shadow"
+                        className="absolute -bottom-1 -right-1 p-1 bg-[#B4E0E8] text-[#011E4D] rounded-full shadow"
                         title="Wajah Terdaftar"
                       >
                         <CheckCircle2 className="w-3 h-3" />
@@ -413,14 +413,14 @@ export function EmployeeManagement({
                         <div className="flex items-center space-x-1 shrink-0">
                           <button
                             onClick={() => handleOpenEdit(emp)}
-                            className="text-slate-400 hover:text-emerald-400 p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+                            className="text-slate-400 hover:text-[#B4E0E8] p-1.5 rounded-lg hover:bg-[#00112C] transition cursor-pointer"
                             title="Edit Data Karyawan"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDelete(emp.id, emp.name)}
-                            className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+                            className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-[#00112C] transition cursor-pointer"
                             title="Hapus Karyawan"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -428,7 +428,7 @@ export function EmployeeManagement({
                         </div>
                       ) : (
                         <span title="Akses edit/hapus hanya untuk role Manager">
-                          <Lock className="w-3.5 h-3.5 text-slate-600" />
+                          <Lock className="w-3.5 h-3.5 text-slate-500" />
                         </span>
                       )}
                     </div>
@@ -447,15 +447,15 @@ export function EmployeeManagement({
                       Role: Manager (Akses Penuh)
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 bg-teal-500/10 text-teal-300 text-[11px] font-medium px-2.5 py-0.5 rounded-md border border-teal-500/30">
-                      <User className="w-3.5 h-3.5 text-teal-400" />
+                    <span className="inline-flex items-center gap-1.5 bg-[#022864] text-[#B4E0E8] text-[11px] font-medium px-2.5 py-0.5 rounded-md border border-[#B4E0E8]/30">
+                      <User className="w-3.5 h-3.5 text-[#B4E0E8]" />
                       Role: Karyawan (Input & Lihat Hasil)
                     </span>
                   )}
                 </div>
 
                 {/* Details Card */}
-                <div className="space-y-1.5 text-xs text-slate-400 bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 mb-4">
+                <div className="space-y-1.5 text-xs text-slate-400 bg-[#00112C]/80 p-3 rounded-2xl border border-[#093478] mb-4">
                   <div className="flex items-center justify-between">
                     <span>Divisi:</span>
                     <span className="text-slate-200 font-medium">{emp.department}</span>
@@ -467,7 +467,7 @@ export function EmployeeManagement({
                   <div className="flex items-center justify-between">
                     <span>Status Wajah:</span>
                     {emp.hasFaceRegistered ? (
-                      <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                      <span className="text-[#B4E0E8] font-semibold flex items-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5" /> Terdaftar
                       </span>
                     ) : (
@@ -485,15 +485,15 @@ export function EmployeeManagement({
                   onClick={() => setEnrollingEmployee(emp)}
                   className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
                     emp.hasFaceRegistered
-                      ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
-                      : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20'
+                      ? 'bg-[#00112C] hover:bg-[#B4E0E8] text-slate-200 hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8]'
+                      : 'bg-[#B4E0E8] hover:bg-white text-[#011E4D] shadow-md shadow-[#B4E0E8]/20'
                   }`}
                 >
                   <Camera className="w-4 h-4" />
                   <span>{emp.hasFaceRegistered ? 'Perbarui Wajah Biometrik' : 'Daftarkan Foto Wajah'}</span>
                 </button>
               ) : (
-                <div className="w-full py-2 px-3 rounded-xl bg-slate-950/60 border border-slate-800 text-center text-[11px] text-slate-500">
+                <div className="w-full py-2 px-3 rounded-xl bg-[#00112C]/60 border border-[#093478] text-center text-[11px] text-slate-400">
                   {emp.hasFaceRegistered ? 'Wajah Biometrik Terverifikasi' : 'Foto Wajah Belum Didaftarkan'}
                 </div>
               )}
@@ -504,14 +504,14 @@ export function EmployeeManagement({
 
       {/* Modal: Tambah Karyawan Baru / Edit Data Karyawan */}
       {(isAddModalOpen || editingEmployee) && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-[#00112C]/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#011E4D] border border-[#093478] rounded-3xl p-6 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => {
                 setIsAddModalOpen(false);
                 setEditingEmployee(null);
               }}
-              className="absolute top-4 right-4 p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 rounded-xl bg-[#00112C] hover:bg-[#B4E0E8] text-slate-300 hover:text-[#011E4D] cursor-pointer transition border border-[#093478] hover:border-[#B4E0E8]"
             >
               <X className="w-5 h-5" />
             </button>
@@ -519,17 +519,17 @@ export function EmployeeManagement({
             <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
               {editingEmployee ? (
                 <>
-                  <Edit2 className="w-5 h-5 text-emerald-400" />
+                  <Edit2 className="w-5 h-5 text-[#B4E0E8]" />
                   Edit Data Karyawan & Hak Akses
                 </>
               ) : (
                 <>
-                  <UserPlus className="w-5 h-5 text-emerald-400" />
+                  <UserPlus className="w-5 h-5 text-[#B4E0E8]" />
                   Tambah Karyawan Baru
                 </>
               )}
             </h3>
-            <p className="text-xs text-slate-400 mb-5">
+            <p className="text-xs text-slate-300 mb-5">
               Atur informasi identitas dan tentukan role sistem (Manager atau Karyawan).
             </p>
 
@@ -545,7 +545,7 @@ export function EmployeeManagement({
                     placeholder="Contoh: EMP-2026-006"
                     value={nik}
                     onChange={(e) => setNik(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                    className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-[#B4E0E8] font-mono"
                   />
                 </div>
 
@@ -556,7 +556,7 @@ export function EmployeeManagement({
                   <select
                     value={systemRole}
                     onChange={(e) => setSystemRole(e.target.value as UserRole)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 font-bold cursor-pointer text-amber-300"
+                    className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-[#B4E0E8] font-bold cursor-pointer text-amber-300"
                   >
                     <option value="Manager">👑 Manager (Akses Penuh, Edit, Hapus)</option>
                     <option value="Karyawan">👤 Karyawan (Input Absen & Lihat Hasil Saja)</option>
@@ -574,7 +574,7 @@ export function EmployeeManagement({
                   placeholder="Nama lengkap"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-[#B4E0E8]"
                 />
               </div>
 
@@ -584,7 +584,7 @@ export function EmployeeManagement({
                   <select
                     value={department}
                     onChange={(e) => setDepartment(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                    className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-[#B4E0E8] cursor-pointer"
                   >
                     <option value="Teknologi Informasi">Teknologi Informasi</option>
                     <option value="Human Resources (HRD)">Human Resources (HRD)</option>
@@ -602,7 +602,7 @@ export function EmployeeManagement({
                     placeholder="Contoh: Staff Developer / HR Staff"
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500"
+                    className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-[#B4E0E8]"
                   />
                 </div>
               </div>
@@ -614,7 +614,7 @@ export function EmployeeManagement({
                   placeholder="email@perusahaan.co.id"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-[#B4E0E8]"
                 />
               </div>
 
@@ -625,37 +625,37 @@ export function EmployeeManagement({
                   placeholder="0812-xxxx-xxxx"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-[#B4E0E8]"
                 />
               </div>
 
               {editingEmployee && (
-                <div className="flex items-center justify-between p-3 bg-slate-950/80 rounded-xl border border-slate-800">
+                <div className="flex items-center justify-between p-3 bg-[#00112C]/80 rounded-xl border border-[#093478]">
                   <span className="text-slate-300 font-semibold">Status Karyawan Aktif</span>
                   <input
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
-                    className="w-4 h-4 accent-emerald-500 cursor-pointer"
+                    className="w-4 h-4 accent-[#B4E0E8] cursor-pointer"
                   />
                 </div>
               )}
 
-              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2.5">
+              <div className="pt-3 border-t border-[#093478] flex justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => {
                     setIsAddModalOpen(false);
                     setEditingEmployee(null);
                   }}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium cursor-pointer"
+                  className="px-4 py-2 bg-[#00112C] hover:bg-[#B4E0E8] text-slate-300 hover:text-[#011E4D] rounded-xl font-medium cursor-pointer transition border border-[#093478] hover:border-[#B4E0E8]"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl shadow cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-bold rounded-xl shadow cursor-pointer disabled:opacity-50 transition"
                 >
                   {isSubmitting
                     ? 'Menyimpan...'
@@ -671,27 +671,27 @@ export function EmployeeManagement({
 
       {/* Face Registration Camera Modal */}
       {enrollingEmployee && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 z-50 bg-[#00112C]/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#011E4D] border border-[#093478] rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
             <button
               onClick={() => setEnrollingEmployee(null)}
-              className="absolute top-4 right-4 p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 rounded-xl bg-[#00112C] hover:bg-[#B4E0E8] text-slate-300 hover:text-[#011E4D] cursor-pointer transition border border-[#093478] hover:border-[#B4E0E8]"
             >
               <X className="w-5 h-5" />
             </button>
 
             <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-              <Camera className="w-5 h-5 text-emerald-400" />
+              <Camera className="w-5 h-5 text-[#B4E0E8]" />
               Perekaman Biometrik Wajah
             </h3>
-            <p className="text-xs text-slate-400 mb-4">
+            <p className="text-xs text-slate-300 mb-4">
               Karyawan:{' '}
-              <strong className="text-slate-200">{enrollingEmployee.name}</strong> (
+              <strong className="text-white">{enrollingEmployee.name}</strong> (
               {enrollingEmployee.nik})
             </p>
 
             {/* Camera Viewfinder */}
-            <div className="relative aspect-square w-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 mb-4 flex items-center justify-center">
+            <div className="relative aspect-square w-full bg-[#00112C] rounded-2xl overflow-hidden border border-[#093478] mb-4 flex items-center justify-center">
               {!capturedPhoto ? (
                 <>
                   <video
@@ -705,15 +705,15 @@ export function EmployeeManagement({
 
                   {/* Face Guide Oval */}
                   <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                    <div className="w-48 h-60 border-2 border-emerald-400/50 rounded-full border-dashed flex flex-col items-center justify-center">
-                      <span className="text-[11px] bg-slate-950/70 text-emerald-300 px-2 py-0.5 rounded-full font-mono">
+                    <div className="w-48 h-60 border-2 border-[#B4E0E8]/70 rounded-full border-dashed flex flex-col items-center justify-center">
+                      <span className="text-[11px] bg-[#00112C]/80 text-[#B4E0E8] px-2 py-0.5 rounded-full font-mono border border-[#093478]">
                         Posisikan Wajah
                       </span>
                     </div>
                   </div>
 
-                  <div className="absolute bottom-3 inset-x-3 bg-slate-950/80 backdrop-blur-md rounded-xl p-2.5 text-center text-xs">
-                    <span className="text-emerald-400 font-semibold flex items-center justify-center gap-1.5">
+                  <div className="absolute bottom-3 inset-x-3 bg-[#00112C]/90 backdrop-blur-md rounded-xl p-2.5 text-center text-xs border border-[#093478]">
+                    <span className="text-[#B4E0E8] font-semibold flex items-center justify-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" />
                       {faceDetectedInCamera
                         ? 'Wajah siap ditangkap!'
@@ -728,7 +728,7 @@ export function EmployeeManagement({
                     alt="Captured Face"
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute bottom-3 inset-x-3 bg-emerald-500 text-slate-950 font-bold rounded-xl p-2 text-center text-xs flex items-center justify-center gap-1.5 shadow-lg">
+                  <div className="absolute bottom-3 inset-x-3 bg-[#B4E0E8] text-[#011E4D] font-bold rounded-xl p-2 text-center text-xs flex items-center justify-center gap-1.5 shadow-lg">
                     <CheckCircle2 className="w-4 h-4" />
                     Foto Wajah Berhasil Diambil
                   </div>
@@ -742,7 +742,7 @@ export function EmployeeManagement({
                 <button
                   type="button"
                   onClick={handleCaptureSnapshot}
-                  className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-bold rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center gap-2"
                 >
                   <Camera className="w-4 h-4" />
                   <span>Ambil Foto Referensi</span>
@@ -752,7 +752,7 @@ export function EmployeeManagement({
                   <button
                     type="button"
                     onClick={() => setCapturedPhoto(null)}
-                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl text-xs cursor-pointer flex items-center gap-1.5"
+                    className="px-4 py-2.5 bg-[#00112C] hover:bg-[#B4E0E8] text-slate-300 hover:text-[#011E4D] font-medium rounded-xl text-xs cursor-pointer flex items-center gap-1.5 border border-[#093478] hover:border-[#B4E0E8] transition"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Foto Ulang</span>
@@ -762,7 +762,7 @@ export function EmployeeManagement({
                     type="button"
                     onClick={handleSaveFaceEnrollment}
                     disabled={isCapturingFace}
-                    className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-bold rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {isCapturingFace ? 'Menyimpan...' : 'Simpan ke Profil Karyawan'}
                   </button>

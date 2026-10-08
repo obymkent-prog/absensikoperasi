@@ -138,17 +138,17 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
   return (
     <div className="space-y-6">
       {/* Top Banner & Export Action */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-[#011E4D]/90 border border-[#093478] rounded-3xl p-6 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2.5">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <div className="p-2 rounded-xl bg-[#00112C] text-[#B4E0E8] border border-[#093478]">
               <FileSpreadsheet className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white tracking-tight">
                 Rekapitulasi Kehadiran & Laporan Absensi
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-300 mt-0.5">
                 Sinkronisasi data kehadiran harian real-time via Firebase Firestore
               </p>
             </div>
@@ -158,7 +158,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
         <button
           onClick={handleExport}
           disabled={isExporting || filteredAttendances.length === 0}
-          className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 transition flex items-center gap-2.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          className="px-5 py-3 rounded-2xl bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-bold text-sm shadow-lg shadow-[#B4E0E8]/20 transition flex items-center gap-2.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
         >
           <Download className="w-4 h-4" />
           <span>{isExporting ? 'Membuat File Excel...' : 'Ekspor ke Excel (.xlsx)'}</span>
@@ -167,61 +167,61 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
+        <div className="bg-[#011E4D]/90 border border-[#093478] rounded-2xl p-4 shadow-md">
           <span className="text-xs font-semibold text-slate-400 block mb-1">Total Absensi</span>
           <div className="text-2xl font-black text-white font-mono">{stats.total}</div>
-          <span className="text-[11px] text-slate-500 mt-1 block">Catatan terpilih</span>
+          <span className="text-[11px] text-slate-400 mt-1 block">Catatan terpilih</span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
-          <span className="text-xs font-semibold text-emerald-400 block mb-1">Tepat Waktu</span>
-          <div className="text-2xl font-black text-emerald-400 font-mono">{stats.tepatWaktu}</div>
-          <span className="text-[11px] text-emerald-500/70 mt-1 block">
+        <div className="bg-[#011E4D]/90 border border-[#093478] rounded-2xl p-4 shadow-md">
+          <span className="text-xs font-semibold text-[#B4E0E8] block mb-1">Tepat Waktu</span>
+          <div className="text-2xl font-black text-[#B4E0E8] font-mono">{stats.tepatWaktu}</div>
+          <span className="text-[11px] text-[#B4E0E8]/70 mt-1 block">
             {stats.total > 0 ? `${Math.round((stats.tepatWaktu / stats.total) * 100)}%` : '0%'} rasio
           </span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
+        <div className="bg-[#011E4D]/90 border border-[#093478] rounded-2xl p-4 shadow-md">
           <span className="text-xs font-semibold text-rose-400 block mb-1">Terlambat</span>
           <div className="text-2xl font-black text-rose-400 font-mono">{stats.terlambat}</div>
-          <span className="text-[11px] text-rose-500/70 mt-1 block">
+          <span className="text-[11px] text-rose-400/70 mt-1 block">
             {stats.total > 0 ? `${Math.round((stats.terlambat / stats.total) * 100)}%` : '0%'} rasio
           </span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
-          <span className="text-xs font-semibold text-teal-400 block mb-1">WFO (Kantor)</span>
-          <div className="text-2xl font-black text-teal-300 font-mono">{stats.wfoCount}</div>
-          <span className="text-[11px] text-slate-500 mt-1 block">Lokasi Geofence</span>
+        <div className="bg-[#011E4D]/90 border border-[#093478] rounded-2xl p-4 shadow-md">
+          <span className="text-xs font-semibold text-[#B4E0E8] block mb-1">WFO (Kantor)</span>
+          <div className="text-2xl font-black text-[#B4E0E8] font-mono">{stats.wfoCount}</div>
+          <span className="text-[11px] text-slate-400 mt-1 block">Lokasi Geofence</span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
+        <div className="bg-[#011E4D]/90 border border-[#093478] rounded-2xl p-4 shadow-md">
           <span className="text-xs font-semibold text-sky-400 block mb-1">WFH (Remote)</span>
           <div className="text-2xl font-black text-sky-300 font-mono">{stats.wfhCount}</div>
-          <span className="text-[11px] text-slate-500 mt-1 block">Kerja dari Rumah</span>
+          <span className="text-[11px] text-slate-400 mt-1 block">Kerja dari Rumah</span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
+        <div className="bg-[#011E4D]/90 border border-[#093478] rounded-2xl p-4 shadow-md">
           <span className="text-xs font-semibold text-amber-400 block mb-1">Akurasi Wajah</span>
           <div className="text-2xl font-black text-amber-300 font-mono">
             {stats.avgConfidence > 0 ? `${stats.avgConfidence}%` : '-'}
           </div>
-          <span className="text-[11px] text-slate-500 mt-1 block">Rata-rata biometrik</span>
+          <span className="text-[11px] text-slate-400 mt-1 block">Rata-rata biometrik</span>
         </div>
       </div>
 
       {/* Filter Toolbar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
+      <div className="bg-[#011E4D]/90 border border-[#093478] rounded-2xl p-4 shadow-lg space-y-3">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
           {/* Search Box */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
             <input
               type="text"
               placeholder="Cari nama, NIK, atau catatan..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+              className="w-full bg-[#00112C] border border-[#093478] rounded-xl pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#B4E0E8]"
             />
           </div>
 
@@ -231,7 +231,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
             <select
               value={periodFilter}
               onChange={(e) => setPeriodFilter(e.target.value as 'all' | 'today' | '7days' | 'month')}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 font-medium focus:outline-none focus:border-emerald-500 cursor-pointer"
+              className="bg-[#00112C] border border-[#093478] rounded-xl px-3 py-2 text-xs text-slate-200 font-medium focus:outline-none focus:border-[#B4E0E8] cursor-pointer"
             >
               <option value="all">Semua Periode</option>
               <option value="today">Hari Ini</option>
@@ -243,7 +243,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
             <select
               value={departmentFilter}
               onChange={(e) => setDepartmentFilter(e.target.value)}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 font-medium focus:outline-none focus:border-emerald-500 cursor-pointer"
+              className="bg-[#00112C] border border-[#093478] rounded-xl px-3 py-2 text-xs text-slate-200 font-medium focus:outline-none focus:border-[#B4E0E8] cursor-pointer"
             >
               <option value="all">Semua Departemen</option>
               {departments.map((dept) => (
@@ -257,7 +257,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 font-medium focus:outline-none focus:border-emerald-500 cursor-pointer"
+              className="bg-[#00112C] border border-[#093478] rounded-xl px-3 py-2 text-xs text-slate-200 font-medium focus:outline-none focus:border-[#B4E0E8] cursor-pointer"
             >
               <option value="all">Semua Status</option>
               <option value="tepat_waktu">Tepat Waktu</option>
@@ -268,7 +268,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 font-medium focus:outline-none focus:border-emerald-500 cursor-pointer"
+              className="bg-[#00112C] border border-[#093478] rounded-xl px-3 py-2 text-xs text-slate-200 font-medium focus:outline-none focus:border-[#B4E0E8] cursor-pointer"
             >
               <option value="all">Semua Tipe Kerja</option>
               <option value="wfo">WFO (Kantor)</option>
@@ -283,8 +283,8 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
                 onClick={() => setOnlyMyAttendance(!onlyMyAttendance)}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
                   onlyMyAttendance
-                    ? 'bg-teal-500 text-slate-950 shadow-sm'
-                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                    ? 'bg-[#B4E0E8] text-[#011E4D] shadow-sm'
+                    : 'bg-[#00112C] text-slate-300 hover:bg-[#B4E0E8] hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8]'
                 }`}
               >
                 <span>{onlyMyAttendance ? '👤 Presensi Saya' : '👥 Semua Karyawan'}</span>
@@ -295,10 +295,10 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
       </div>
 
       {/* Main Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+      <div className="bg-[#011E4D]/90 border border-[#093478] rounded-3xl overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/80 text-slate-400 font-semibold border-b border-slate-800 uppercase tracking-wider">
+            <thead className="bg-[#00112C]/90 text-slate-300 font-semibold border-b border-[#093478] uppercase tracking-wider">
               <tr>
                 <th className="py-3.5 px-4">Foto Verifikasi</th>
                 <th className="py-3.5 px-4">Karyawan</th>
@@ -310,16 +310,16 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
                 <th className="py-3.5 px-4">Catatan</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/70 text-slate-300">
+            <tbody className="divide-y divide-[#093478] text-slate-300">
               {filteredAttendances.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-500">
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
                     Tidak ada catatan presensi yang sesuai dengan filter.
                   </td>
                 </tr>
               ) : (
                 filteredAttendances.map((rec) => (
-                  <tr key={rec.id} className="hover:bg-slate-800/40 transition">
+                  <tr key={rec.id} className="hover:bg-[#022864]/50 transition">
                     {/* Selfie Snapshot */}
                     <td className="py-3 px-4">
                       {rec.photoSnapshot ? (
@@ -336,14 +336,14 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
                           <img
                             src={rec.photoSnapshot}
                             alt={rec.employeeName}
-                            className="w-10 h-10 rounded-xl object-cover border border-slate-700 group-hover:border-emerald-400 transition"
+                            className="w-10 h-10 rounded-xl object-cover border border-[#093478] group-hover:border-[#B4E0E8] transition"
                           />
-                          <span className="absolute inset-0 bg-slate-950/40 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-white">
+                          <span className="absolute inset-0 bg-[#00112C]/60 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-white">
                             Lihat
                           </span>
                         </button>
                       ) : (
-                        <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-500">
+                        <div className="w-10 h-10 rounded-xl bg-[#00112C] border border-[#093478] flex items-center justify-center text-slate-500">
                           <Camera className="w-4 h-4" />
                         </div>
                       )}
@@ -353,7 +353,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
                     <td className="py-3 px-4">
                       <div className="font-bold text-white text-sm">{rec.employeeName}</div>
                       <div className="text-[11px] text-slate-400 font-mono">{rec.employeeNik}</div>
-                      <div className="text-[11px] text-slate-500">{rec.department}</div>
+                      <div className="text-[11px] text-[#B4E0E8]">{rec.department}</div>
                     </td>
 
                     {/* Date */}
@@ -363,7 +363,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
 
                     {/* In / Out times */}
                     <td className="py-3 px-4 whitespace-nowrap font-mono">
-                      <div className="text-emerald-400 font-semibold">
+                      <div className="text-[#B4E0E8] font-semibold">
                         Masuk: {rec.checkInTime}
                       </div>
                       <div className="text-slate-400 text-[11px]">
@@ -377,7 +377,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                             rec.type === 'wfo'
-                              ? 'bg-teal-500/10 text-teal-300 border border-teal-500/20'
+                              ? 'bg-[#022864] text-[#B4E0E8] border border-[#B4E0E8]/30'
                               : rec.type === 'wfh'
                               ? 'bg-sky-500/10 text-sky-300 border border-sky-500/20'
                               : 'bg-purple-500/10 text-purple-300 border border-purple-500/20'
@@ -389,8 +389,8 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                             rec.status === 'tepat_waktu'
-                              ? 'bg-emerald-500/20 text-emerald-300'
-                              : 'bg-rose-500/20 text-rose-300'
+                              ? 'bg-[#022864] text-[#B4E0E8] border border-[#B4E0E8]/30'
+                              : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                           }`}
                         >
                           {rec.status === 'tepat_waktu' ? 'Tepat Waktu' : 'Terlambat'}
@@ -408,7 +408,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${
-                            rec.isWithinGeofence ? 'bg-emerald-400' : 'bg-rose-400'
+                            rec.isWithinGeofence ? 'bg-[#B4E0E8]' : 'bg-rose-400'
                           }`}
                         ></span>
                         <span className="text-[11px] text-slate-400">
@@ -419,7 +419,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
                             href={`https://www.google.com/maps?q=${rec.locationLat},${rec.locationLng}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-emerald-400 hover:text-emerald-300"
+                            className="text-[#B4E0E8] hover:text-white"
                             title="Buka di Google Maps"
                           >
                             <ExternalLink className="w-3 h-3" />
@@ -430,7 +430,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
 
                     {/* Face Verification Score */}
                     <td className="py-3 px-4 whitespace-nowrap">
-                      <span className="inline-flex items-center gap-1 font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
+                      <span className="inline-flex items-center gap-1 font-mono text-[#B4E0E8] font-bold bg-[#022864] px-2 py-1 rounded-lg border border-[#B4E0E8]/30">
                         <CheckCircle className="w-3.5 h-3.5" />
                         {rec.verificationConfidence || 95}% Cocok
                       </span>
@@ -450,19 +450,19 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
 
       {/* Photo Zoom Modal */}
       {selectedPhoto && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 z-50 bg-[#00112C]/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-[#011E4D] border border-[#093478] rounded-3xl p-5 max-w-md w-full shadow-2xl relative">
             <button
               onClick={() => setSelectedPhoto(null)}
-              className="absolute top-4 right-4 p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 rounded-xl bg-[#00112C] hover:bg-[#B4E0E8] text-slate-300 hover:text-[#011E4D] cursor-pointer transition border border-[#093478] hover:border-[#B4E0E8]"
             >
               <X className="w-5 h-5" />
             </button>
 
             <h4 className="text-base font-bold text-white mb-1">{selectedPhoto.name}</h4>
-            <p className="text-xs text-slate-400 mb-4">{selectedPhoto.time}</p>
+            <p className="text-xs text-slate-300 mb-4">{selectedPhoto.time}</p>
 
-            <div className="rounded-2xl overflow-hidden border border-slate-800 aspect-4/3 bg-black flex items-center justify-center">
+            <div className="rounded-2xl overflow-hidden border border-[#093478] aspect-4/3 bg-black flex items-center justify-center">
               <img
                 src={selectedPhoto.url}
                 alt={selectedPhoto.name}
@@ -470,10 +470,10 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
               />
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
+            <div className="mt-4 pt-3 border-t border-[#093478] flex justify-end">
               <button
                 onClick={() => setSelectedPhoto(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl cursor-pointer"
+                className="px-4 py-2 bg-[#00112C] hover:bg-[#B4E0E8] text-slate-200 hover:text-[#011E4D] text-xs font-semibold rounded-xl cursor-pointer border border-[#093478] hover:border-[#B4E0E8] transition"
               >
                 Tutup
               </button>

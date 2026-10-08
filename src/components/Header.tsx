@@ -52,37 +52,41 @@ export function Header({
   });
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white shadow-xl">
+    <header className="sticky top-0 z-40 bg-[#011E4D]/95 backdrop-blur-md border-b border-[#093478] text-white shadow-2xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Brand & Status */}
           <div className="flex items-center space-x-3">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-slate-950 font-bold text-xl">
-              <ShieldCheck className="w-6 h-6 text-slate-950" />
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#011E4D] to-[#022864] border border-[#B4E0E8]/40 flex items-center justify-center shadow-lg shadow-[#011E4D]/30 p-1.5">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/9/90/National_emblem_of_Indonesia_Garuda_Pancasila.svg"
+                alt="Garuda Pancasila"
+                className="w-full h-full object-contain drop-shadow"
+              />
             </div>
             <div>
               <div className="flex items-center space-x-2">
                 <span className="font-bold text-lg tracking-tight text-white">
-                  Presensi Pintar
+                  Absensi Karyawan
                 </span>
-                <span className="bg-emerald-500/20 text-emerald-300 text-xs px-2 py-0.5 rounded-full font-semibold border border-emerald-500/30 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span className="bg-[#022864] text-[#B4E0E8] text-xs px-2 py-0.5 rounded-full font-semibold border border-[#B4E0E8]/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#B4E0E8] animate-ping"></span>
                   GPS & Face AI
                 </span>
               </div>
-              <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <p className="text-xs text-slate-300 flex items-center gap-1.5 mt-0.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#B4E0E8]" />
                 Firebase Real-time Connected
               </p>
             </div>
           </div>
 
           {/* Real-time Clock Widget */}
-          <div className="hidden lg:flex items-center bg-slate-800/80 border border-slate-700/70 rounded-xl px-4 py-2 space-x-3 shadow-inner">
-            <Clock className="w-5 h-5 text-emerald-400 animate-pulse" />
+          <div className="hidden lg:flex items-center bg-[#00112C]/80 border border-[#093478] rounded-xl px-4 py-2 space-x-3 shadow-inner">
+            <Clock className="w-5 h-5 text-[#B4E0E8] animate-pulse" />
             <div>
               <div className="text-sm font-semibold tracking-wider text-slate-100 font-mono">
-                {formattedTime} <span className="text-xs text-slate-400 font-normal">WIB</span>
+                {formattedTime} <span className="text-xs text-[#B4E0E8] font-normal">WIB</span>
               </div>
               <div className="text-xs text-slate-400 capitalize">
                 {formattedDate}
@@ -94,14 +98,14 @@ export function Header({
           <div className="flex items-center space-x-3">
             {/* User Profile Card */}
             {user && (
-              <div className="flex items-center space-x-2.5 bg-slate-800/80 border border-slate-700/80 rounded-2xl py-1.5 px-3">
+              <div className="flex items-center space-x-2.5 bg-[#00112C]/80 border border-[#093478] rounded-2xl py-1.5 px-3">
                 <img
                   src={
                     user.photoURL ||
                     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'
                   }
                   alt={user.displayName}
-                  className="w-8 h-8 rounded-xl object-cover border border-emerald-400/40"
+                  className="w-8 h-8 rounded-xl object-cover border border-[#B4E0E8]/40"
                 />
                 <div className="hidden sm:block text-left">
                   <div className="text-xs font-bold text-white truncate max-w-[130px]">
@@ -110,12 +114,12 @@ export function Header({
                   <div className="text-[10px] font-semibold flex items-center gap-1">
                     <span
                       className={`inline-block w-1.5 h-1.5 rounded-full ${
-                        user.role === 'Manager' ? 'bg-amber-400 animate-pulse' : 'bg-teal-400'
+                        user.role === 'Manager' ? 'bg-amber-400 animate-pulse' : 'bg-[#B4E0E8]'
                       }`}
                     ></span>
                     <span
                       className={
-                        user.role === 'Manager' ? 'text-amber-300 font-bold' : 'text-teal-300'
+                        user.role === 'Manager' ? 'text-amber-300 font-bold' : 'text-[#B4E0E8]'
                       }
                     >
                       {user.role === 'Manager' ? 'Manager (Akses Penuh)' : 'Karyawan'}
@@ -128,7 +132,7 @@ export function Header({
             {/* Push Notification Bell */}
             <button
               onClick={onOpenNotifications}
-              className="relative p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/80 transition-all cursor-pointer"
+              className="relative p-2.5 rounded-xl bg-[#00112C]/80 hover:bg-[#B4E0E8] text-slate-300 hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8] transition-all cursor-pointer"
               title="Notifikasi Pengingat"
             >
               <Bell className="w-5 h-5" />
@@ -143,7 +147,7 @@ export function Header({
             {user && (
               <button
                 onClick={logout}
-                className="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 border border-slate-700/80 hover:border-rose-500/30 transition cursor-pointer"
+                className="p-2.5 rounded-xl bg-[#00112C]/80 hover:bg-[#B4E0E8] text-slate-300 hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8] transition cursor-pointer"
                 title="Keluar / Logout"
               >
                 <LogOut className="w-5 h-5" />
@@ -153,13 +157,13 @@ export function Header({
         </div>
 
         {/* Tab Navigation Navigation Bar */}
-        <div className="flex space-x-2 border-t border-slate-800/80 py-2.5 overflow-x-auto scrollbar-none">
+        <div className="flex space-x-2 border-t border-[#093478] py-2.5 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('kiosk')}
             className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'kiosk'
-                ? 'bg-emerald-500 text-slate-950 font-semibold shadow-lg shadow-emerald-500/20'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#B4E0E8] text-[#011E4D] font-bold shadow-lg shadow-[#B4E0E8]/20'
+                : 'text-slate-200 hover:text-[#011E4D] hover:bg-[#B4E0E8]'
             }`}
           >
             <Camera className="w-4 h-4" />
@@ -170,8 +174,8 @@ export function Header({
             onClick={() => setActiveTab('recap')}
             className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'recap'
-                ? 'bg-emerald-500 text-slate-950 font-semibold shadow-lg shadow-emerald-500/20'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#B4E0E8] text-[#011E4D] font-bold shadow-lg shadow-[#B4E0E8]/20'
+                : 'text-slate-200 hover:text-[#011E4D] hover:bg-[#B4E0E8]'
             }`}
           >
             <FileSpreadsheet className="w-4 h-4" />
@@ -182,14 +186,14 @@ export function Header({
             onClick={() => setActiveTab('employees')}
             className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'employees'
-                ? 'bg-emerald-500 text-slate-950 font-semibold shadow-lg shadow-emerald-500/20'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#B4E0E8] text-[#011E4D] font-bold shadow-lg shadow-[#B4E0E8]/20'
+                : 'text-slate-200 hover:text-[#011E4D] hover:bg-[#B4E0E8]'
             }`}
           >
             <Users className="w-4 h-4" />
             <span>Kelola Karyawan</span>
             {user?.role !== 'Manager' && (
-              <span className="ml-1 text-[10px] bg-slate-800 text-amber-400 px-1.5 py-0.5 rounded-md border border-amber-500/30">
+              <span className="ml-1 text-[10px] bg-[#00112C] text-amber-300 px-1.5 py-0.5 rounded-md border border-amber-500/30">
                 Manager
               </span>
             )}
@@ -199,8 +203,8 @@ export function Header({
             onClick={() => setActiveTab('settings')}
             className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'settings'
-                ? 'bg-emerald-500 text-slate-950 font-semibold shadow-lg shadow-emerald-500/20'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#B4E0E8] text-[#011E4D] font-bold shadow-lg shadow-[#B4E0E8]/20'
+                : 'text-slate-200 hover:text-[#011E4D] hover:bg-[#B4E0E8]'
             }`}
           >
             <Settings className="w-4 h-4" />

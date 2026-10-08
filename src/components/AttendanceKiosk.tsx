@@ -487,15 +487,15 @@ export function AttendanceKiosk({
       <div className="lg:col-span-7 space-y-6">
         {/* Face Enrollment Callout for First-Time Users */}
         {currentEmployee && !currentEmployee.hasFaceRegistered && (
-          <div className="bg-gradient-to-r from-amber-500/15 via-emerald-500/15 to-teal-500/15 border-2 border-amber-500/40 rounded-3xl p-5 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="bg-[#011E4D]/90 border border-[#B4E0E8]/40 rounded-3xl p-5 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-[#00112C] text-[#B4E0E8] border border-[#093478] flex items-center justify-center shrink-0">
                 <Sparkles className="w-6 h-6 animate-pulse" />
               </div>
               <div>
                 <h4 className="text-sm font-bold text-white flex items-center gap-1.5">
                   Daftarkan Wajah Anda untuk Mulai Absen
-                  <span className="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                  <span className="bg-[#022864] text-[#B4E0E8] text-[10px] px-2 py-0.5 rounded-full font-bold border border-[#B4E0E8]/30">
                     Pengguna Baru
                   </span>
                 </h4>
@@ -508,7 +508,7 @@ export function AttendanceKiosk({
             <button
               type="button"
               onClick={() => setIsEnrollModalOpen(true)}
-              className="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition cursor-pointer flex items-center gap-2 whitespace-nowrap shrink-0"
+              className="px-4 py-2.5 bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-black text-xs rounded-xl shadow-lg shadow-[#B4E0E8]/20 transition cursor-pointer flex items-center gap-2 whitespace-nowrap shrink-0"
             >
               <Camera className="w-4 h-4" />
               <span>Daftarkan Wajah Sekarang</span>
@@ -517,18 +517,18 @@ export function AttendanceKiosk({
         )}
 
         {/* Camera Viewfinder Card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl overflow-hidden relative">
+        <div className="bg-[#011E4D]/90 border border-[#093478] rounded-3xl p-6 shadow-2xl overflow-hidden relative">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2.5">
-              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <div className="p-2 rounded-xl bg-[#00112C] text-[#B4E0E8] border border-[#093478]">
                 <Camera className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   Pemindai Wajah Real-Time
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span className="w-2 h-2 rounded-full bg-[#B4E0E8] animate-ping"></span>
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-300">
                   Verifikasi identitas biometrik otomatis sebelum mencatat presensi
                 </p>
               </div>
@@ -536,7 +536,7 @@ export function AttendanceKiosk({
 
             <button
               onClick={() => setCameraActive(!cameraActive)}
-              className="text-xs text-slate-400 hover:text-slate-200 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700/80 transition cursor-pointer flex items-center gap-1.5"
+              className="text-xs text-slate-300 hover:text-[#011E4D] bg-[#00112C] hover:bg-[#B4E0E8] px-3 py-1.5 rounded-xl border border-[#093478] hover:border-[#B4E0E8] transition cursor-pointer flex items-center gap-1.5"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>{cameraActive ? 'Nonaktifkan' : 'Aktifkan'}</span>
@@ -544,7 +544,7 @@ export function AttendanceKiosk({
           </div>
 
           {/* Video Feed Box - Proportional 4:3 Aspect Ratio (Not squished/gepeng) */}
-          <div className="relative aspect-[4/3] max-h-[460px] w-full bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 flex items-center justify-center shadow-2xl">
+          <div className="relative aspect-[4/3] max-h-[460px] w-full bg-[#00112C] rounded-3xl overflow-hidden border border-[#093478] flex items-center justify-center shadow-2xl">
             {cameraActive ? (
               <>
                 <video
@@ -565,28 +565,28 @@ export function AttendanceKiosk({
                   <div
                     className={`relative w-48 sm:w-56 h-64 sm:h-74 rounded-[42px] border-2 transition-all duration-300 flex flex-col items-center justify-between p-3.5 ${
                       detectedFace
-                        ? 'border-emerald-400 bg-emerald-500/10 shadow-[0_0_30px_rgba(16,185,129,0.35)]'
-                        : 'border-slate-500/60 border-dashed bg-slate-950/20'
+                        ? 'border-[#B4E0E8] bg-[#B4E0E8]/10 shadow-[0_0_30px_rgba(180,224,232,0.35)]'
+                        : 'border-slate-500/60 border-dashed bg-[#00112C]/40'
                     }`}
                   >
                     {/* High-tech Corner Brackets */}
-                    <div className="absolute -top-1.5 -left-1.5 w-4 h-4 border-t-2 border-l-2 border-emerald-400 rounded-tl-lg"></div>
-                    <div className="absolute -top-1.5 -right-1.5 w-4 h-4 border-t-2 border-r-2 border-emerald-400 rounded-tr-lg"></div>
-                    <div className="absolute -bottom-1.5 -left-1.5 w-4 h-4 border-b-2 border-l-2 border-emerald-400 rounded-bl-lg"></div>
-                    <div className="absolute -bottom-1.5 -right-1.5 w-4 h-4 border-b-2 border-r-2 border-emerald-400 rounded-br-lg"></div>
+                    <div className="absolute -top-1.5 -left-1.5 w-4 h-4 border-t-2 border-l-2 border-[#B4E0E8] rounded-tl-lg"></div>
+                    <div className="absolute -top-1.5 -right-1.5 w-4 h-4 border-t-2 border-r-2 border-[#B4E0E8] rounded-tr-lg"></div>
+                    <div className="absolute -bottom-1.5 -left-1.5 w-4 h-4 border-b-2 border-l-2 border-[#B4E0E8] rounded-bl-lg"></div>
+                    <div className="absolute -bottom-1.5 -right-1.5 w-4 h-4 border-b-2 border-r-2 border-[#B4E0E8] rounded-br-lg"></div>
 
                     {/* Laser Scan Line Animation */}
-                    <div className="absolute inset-x-3 top-1/2 -translate-y-1/2 h-0.5 bg-gradient-to-r from-transparent via-emerald-400/80 to-transparent animate-pulse"></div>
+                    <div className="absolute inset-x-3 top-1/2 -translate-y-1/2 h-0.5 bg-gradient-to-r from-transparent via-[#B4E0E8] to-transparent animate-pulse"></div>
 
-                    <span className="text-[10px] font-mono tracking-wider uppercase bg-slate-950/85 px-2.5 py-0.5 rounded-full text-slate-300 border border-slate-700/80 shadow-sm">
+                    <span className="text-[10px] font-mono tracking-wider uppercase bg-[#00112C]/90 px-2.5 py-0.5 rounded-full text-slate-300 border border-[#093478] shadow-sm">
                       Area Wajah
                     </span>
 
                     <span
                       className={`text-xs font-bold px-3 py-1 rounded-full shadow-lg backdrop-blur-md transition-colors ${
                         detectedFace
-                          ? 'bg-emerald-500 text-slate-950 font-mono shadow-emerald-500/25'
-                          : 'bg-slate-900/90 text-slate-300 border border-slate-700'
+                          ? 'bg-[#B4E0E8] text-[#011E4D] font-mono shadow-[#B4E0E8]/25'
+                          : 'bg-[#00112C]/90 text-slate-300 border border-[#093478]'
                       }`}
                     >
                       {detectedFace
@@ -597,11 +597,11 @@ export function AttendanceKiosk({
                 </div>
 
                 {/* Live Detection Bottom Tag */}
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between bg-slate-950/85 backdrop-blur-md py-2 px-3.5 rounded-xl border border-slate-800 text-xs">
+                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between bg-[#00112C]/90 backdrop-blur-md py-2 px-3.5 rounded-xl border border-[#093478] text-xs">
                   <div className="flex items-center space-x-2">
                     <span
                       className={`w-2.5 h-2.5 rounded-full ${
-                        detectedFace ? 'bg-emerald-400 animate-ping' : 'bg-amber-400 animate-pulse'
+                        detectedFace ? 'bg-[#B4E0E8] animate-ping' : 'bg-amber-400 animate-pulse'
                       }`}
                     ></span>
                     <span className="text-slate-300 font-medium">
@@ -611,18 +611,18 @@ export function AttendanceKiosk({
                     </span>
                   </div>
 
-                  <span className="font-mono text-emerald-400 font-semibold text-[11px] bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                  <span className="font-mono text-[#B4E0E8] font-semibold text-[11px] bg-[#022864] px-2 py-0.5 rounded-md border border-[#B4E0E8]/30">
                     Proposional 4:3
                   </span>
                 </div>
               </>
             ) : (
               <div className="text-center p-6">
-                <Camera className="w-12 h-12 text-slate-600 mx-auto mb-2" />
+                <Camera className="w-12 h-12 text-slate-500 mx-auto mb-2" />
                 <p className="text-xs text-slate-400">Kamera dinonaktifkan</p>
                 <button
                   onClick={() => setCameraActive(true)}
-                  className="mt-3 px-4 py-2 bg-emerald-500 text-slate-950 rounded-xl text-xs font-semibold hover:bg-emerald-400 cursor-pointer"
+                  className="mt-3 px-4 py-2 bg-[#B4E0E8] hover:bg-white text-[#011E4D] rounded-xl text-xs font-semibold cursor-pointer transition"
                 >
                   Aktifkan Kamera
                 </button>
@@ -639,13 +639,13 @@ export function AttendanceKiosk({
         </div>
 
         {/* GPS Geofence Radar Card (Real GPS only) */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+        <div className="bg-[#011E4D]/90 border border-[#093478] rounded-3xl p-6 shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2.5">
               <div
                 className={`p-2 rounded-xl ${
                   isWithinGeofence
-                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                    ? 'bg-[#00112C] text-[#B4E0E8] border border-[#093478]'
                     : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                 }`}
               >
@@ -657,31 +657,31 @@ export function AttendanceKiosk({
                   <span
                     className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
                       isWithinGeofence
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                        ? 'bg-[#022864] text-[#B4E0E8] border-[#B4E0E8]/30'
                         : 'bg-rose-500/20 text-rose-300 border-rose-500/30'
                     }`}
                   >
                     {isWithinGeofence ? 'DALAM RADIUS KANTOR' : 'DI LUAR RADIUS'}
                   </span>
                 </h4>
-                <p className="text-xs text-slate-400">{officeSetting.name}</p>
+                <p className="text-xs text-slate-300">{officeSetting.name}</p>
               </div>
             </div>
 
             {isLocating && (
-              <span className="text-xs text-slate-400 flex items-center gap-1">
-                <RefreshCw className="w-3 h-3 animate-spin" /> Melacak GPS...
+              <span className="text-xs text-slate-300 flex items-center gap-1">
+                <RefreshCw className="w-3 h-3 animate-spin text-[#B4E0E8]" /> Melacak GPS...
               </span>
             )}
           </div>
 
           {/* Location details */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800 text-xs mb-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#00112C]/80 p-3.5 rounded-2xl border border-[#093478] text-xs mb-2">
             <div>
-              <span className="text-slate-500 block">Jarak ke Kantor</span>
+              <span className="text-slate-400 block">Jarak ke Kantor</span>
               <span
                 className={`text-sm font-bold font-mono ${
-                  isWithinGeofence ? 'text-emerald-400' : 'text-rose-400'
+                  isWithinGeofence ? 'text-[#B4E0E8]' : 'text-rose-400'
                 }`}
               >
                 {distanceToOfficeMeters !== null
@@ -690,19 +690,19 @@ export function AttendanceKiosk({
               </span>
             </div>
             <div>
-              <span className="text-slate-500 block">Radius Diizinkan</span>
+              <span className="text-slate-400 block">Radius Diizinkan</span>
               <span className="text-sm font-bold text-slate-200 font-mono">
                 {officeSetting.radiusMeters} meter
               </span>
             </div>
             <div>
-              <span className="text-slate-500 block">Latitude GPS</span>
+              <span className="text-slate-400 block">Latitude GPS</span>
               <span className="text-xs text-slate-300 font-mono truncate block">
                 {currentCoords ? currentCoords.latitude.toFixed(5) : '-'}
               </span>
             </div>
             <div>
-              <span className="text-slate-500 block">Longitude GPS</span>
+              <span className="text-slate-400 block">Longitude GPS</span>
               <span className="text-xs text-slate-300 font-mono truncate block">
                 {currentCoords ? currentCoords.longitude.toFixed(5) : '-'}
               </span>
@@ -720,18 +720,18 @@ export function AttendanceKiosk({
 
       {/* RIGHT COLUMN: Logged-in User Profile & Attendance Actions (5 cols) */}
       <div className="lg:col-span-5 space-y-6">
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+        <div className="bg-[#011E4D]/90 border border-[#093478] rounded-3xl p-6 shadow-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-800">
+          <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#093478]">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <User className="w-5 h-5 text-emerald-400" />
+              <User className="w-5 h-5 text-[#B4E0E8]" />
               Profil Akun Presensi
             </h3>
             <span
               className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
                 isManager
                   ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                  : 'bg-teal-500/20 text-teal-300 border border-teal-500/30'
+                  : 'bg-[#022864] text-[#B4E0E8] border border-[#B4E0E8]/30'
               }`}
             >
               {isManager ? '👑 Manager' : '👤 Karyawan'}
@@ -740,7 +740,7 @@ export function AttendanceKiosk({
 
           {/* User Profile Card */}
           {currentEmployee && (
-            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 mb-6">
+            <div className="bg-[#00112C]/80 border border-[#093478] rounded-2xl p-4 mb-6">
               <div className="flex items-center space-x-3.5">
                 <div className="relative">
                   <img
@@ -749,11 +749,11 @@ export function AttendanceKiosk({
                       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
                     }
                     alt={currentEmployee.name}
-                    className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-500/30 shadow-md"
+                    className="w-16 h-16 rounded-2xl object-cover border-2 border-[#B4E0E8]/40 shadow-md"
                   />
                   {currentEmployee.hasFaceRegistered && (
                     <span
-                      className="absolute -bottom-1 -right-1 p-1 bg-emerald-500 text-slate-950 rounded-full shadow"
+                      className="absolute -bottom-1 -right-1 p-1 bg-[#B4E0E8] text-[#011E4D] rounded-full shadow"
                       title="Wajah Biometrik Terverifikasi"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
@@ -768,24 +768,24 @@ export function AttendanceKiosk({
                   <p className="text-xs text-slate-400 font-mono mt-0.5">
                     {currentEmployee.nik}
                   </p>
-                  <p className="text-xs text-emerald-400 font-medium truncate">
+                  <p className="text-xs text-[#B4E0E8] font-medium truncate">
                     {currentEmployee.role} • {currentEmployee.department}
                   </p>
                 </div>
               </div>
 
               {/* Face Biometric Status & Direct Register Button */}
-              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+              <div className="mt-4 pt-3 border-t border-[#093478] flex items-center justify-between text-xs">
                 <span className="text-slate-400">Verifikasi Wajah:</span>
                 {currentEmployee.hasFaceRegistered ? (
-                  <span className="text-emerald-400 font-bold flex items-center gap-1">
+                  <span className="text-[#B4E0E8] font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Terdaftar & Aktif
                   </span>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setIsEnrollModalOpen(true)}
-                    className="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg border border-amber-500/30 flex items-center gap-1.5 transition cursor-pointer"
+                    className="px-2.5 py-1 bg-[#022864] hover:bg-[#B4E0E8] text-[#B4E0E8] hover:text-[#011E4D] font-bold rounded-lg border border-[#B4E0E8]/30 flex items-center gap-1.5 transition cursor-pointer"
                   >
                     <Camera className="w-3 h-3" />
                     <span>Daftarkan Wajah</span>
@@ -794,15 +794,15 @@ export function AttendanceKiosk({
               </div>
 
               {/* Status Absensi Hari Ini */}
-              <div className="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+              <div className="mt-3 pt-3 border-t border-[#093478] flex items-center justify-between text-xs">
                 <span className="text-slate-400">Presensi Hari Ini:</span>
                 {todayAttendance ? (
                   <div className="text-right">
-                    <span className="text-emerald-400 font-bold block">
+                    <span className="text-[#B4E0E8] font-bold block">
                       Masuk: {todayAttendance.checkInTime}
                     </span>
                     {todayAttendance.checkOutTime ? (
-                      <span className="text-teal-300 font-semibold block">
+                      <span className="text-sky-300 font-semibold block">
                         Pulang: {todayAttendance.checkOutTime}
                       </span>
                     ) : (
@@ -812,7 +812,7 @@ export function AttendanceKiosk({
                     )}
                   </div>
                 ) : (
-                  <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded-lg font-semibold text-[11px]">
+                  <span className="bg-[#00112C] text-slate-300 px-2 py-0.5 rounded-lg font-semibold text-[11px] border border-[#093478]">
                     Belum Melakukan Absen
                   </span>
                 )}
@@ -831,8 +831,8 @@ export function AttendanceKiosk({
                 onClick={() => setWorkType('wfo')}
                 className={`py-2 px-3 rounded-xl text-xs font-bold transition cursor-pointer flex flex-col items-center gap-1 ${
                   workType === 'wfo'
-                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-[#B4E0E8] text-[#011E4D] shadow-md shadow-[#B4E0E8]/20'
+                    : 'bg-[#00112C] text-slate-300 hover:bg-[#B4E0E8] hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8]'
                 }`}
               >
                 <Building2 className="w-4 h-4" />
@@ -844,8 +844,8 @@ export function AttendanceKiosk({
                 onClick={() => setWorkType('wfh')}
                 className={`py-2 px-3 rounded-xl text-xs font-bold transition cursor-pointer flex flex-col items-center gap-1 ${
                   workType === 'wfh'
-                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-[#B4E0E8] text-[#011E4D] shadow-md shadow-[#B4E0E8]/20'
+                    : 'bg-[#00112C] text-slate-300 hover:bg-[#B4E0E8] hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8]'
                 }`}
               >
                 <Navigation className="w-4 h-4" />
@@ -857,8 +857,8 @@ export function AttendanceKiosk({
                 onClick={() => setWorkType('dinas')}
                 className={`py-2 px-3 rounded-xl text-xs font-bold transition cursor-pointer flex flex-col items-center gap-1 ${
                   workType === 'dinas'
-                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-[#B4E0E8] text-[#011E4D] shadow-md shadow-[#B4E0E8]/20'
+                    : 'bg-[#00112C] text-slate-300 hover:bg-[#B4E0E8] hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8]'
                 }`}
               >
                 <MapPin className="w-4 h-4" />
@@ -866,7 +866,7 @@ export function AttendanceKiosk({
               </button>
             </div>
             {workType !== 'wfo' && (
-              <p className="text-[11px] text-teal-300/80 mt-1.5 italic">
+              <p className="text-[11px] text-[#B4E0E8] mt-1.5 italic">
                 * Presensi {workType.toUpperCase()} dapat dilakukan di luar radius kantor.
               </p>
             )}
@@ -882,7 +882,7 @@ export function AttendanceKiosk({
               placeholder="Contoh: Meeting divisi / tugas dinas luar..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+              className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#B4E0E8]"
             />
           </div>
 
@@ -891,12 +891,12 @@ export function AttendanceKiosk({
             <div
               className={`mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-2.5 animate-fade-in ${
                 feedbackMessage.type === 'success'
-                  ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
+                  ? 'bg-[#022864] text-[#B4E0E8] border border-[#B4E0E8]/30'
                   : 'bg-rose-500/10 text-rose-300 border border-rose-500/30'
               }`}
             >
               {feedbackMessage.type === 'success' ? (
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-[#B4E0E8] mt-0.5" />
               ) : (
                 <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
               )}
@@ -911,7 +911,7 @@ export function AttendanceKiosk({
                 type="button"
                 onClick={handleCheckIn}
                 disabled={isSubmitting || !currentEmployee}
-                className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3.5 px-4 rounded-2xl bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-black text-sm shadow-xl shadow-[#B4E0E8]/20 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <>
@@ -933,8 +933,8 @@ export function AttendanceKiosk({
                   disabled={isSubmitting || Boolean(todayAttendance.checkOutTime)}
                   className={`w-full py-3.5 px-4 rounded-2xl font-bold text-sm transition flex items-center justify-center gap-2 cursor-pointer ${
                     todayAttendance.checkOutTime
-                      ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                      : 'bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white shadow-lg shadow-sky-500/25'
+                      ? 'bg-[#00112C] text-slate-500 cursor-not-allowed border border-[#093478]'
+                      : 'bg-[#022864] hover:bg-[#B4E0E8] text-white hover:text-[#011E4D] border border-[#B4E0E8]/40 shadow-lg'
                   }`}
                 >
                   {isSubmitting ? (
@@ -944,7 +944,7 @@ export function AttendanceKiosk({
                     </>
                   ) : todayAttendance.checkOutTime ? (
                     <>
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                      <CheckCircle2 className="w-5 h-5 text-[#B4E0E8]" />
                       <span>Presensi Lengkap (Sudah Pulang)</span>
                     </>
                   ) : (
@@ -967,27 +967,27 @@ export function AttendanceKiosk({
 
       {/* MODAL: DAFTARKAN WAJAH BIOMETRIK BARU */}
       {isEnrollModalOpen && currentEmployee && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 z-50 bg-[#00112C]/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#011E4D] border border-[#093478] rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
             <button
               onClick={() => setIsEnrollModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 rounded-xl bg-[#00112C] hover:bg-[#B4E0E8] text-slate-300 hover:text-[#011E4D] cursor-pointer transition border border-[#093478] hover:border-[#B4E0E8]"
             >
               <X className="w-5 h-5" />
             </button>
 
             <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-              <Camera className="w-5 h-5 text-emerald-400" />
+              <Camera className="w-5 h-5 text-[#B4E0E8]" />
               Perekaman Wajah Biometrik
             </h3>
-            <p className="text-xs text-slate-400 mb-4">
+            <p className="text-xs text-slate-300 mb-4">
               Pendaftaran untuk:{' '}
-              <strong className="text-slate-200">{currentEmployee.name}</strong> (
+              <strong className="text-white">{currentEmployee.name}</strong> (
               {currentEmployee.nik})
             </p>
 
             {/* Camera Viewfinder */}
-            <div className="relative aspect-square w-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 mb-4 flex items-center justify-center">
+            <div className="relative aspect-square w-full bg-[#00112C] rounded-2xl overflow-hidden border border-[#093478] mb-4 flex items-center justify-center">
               {!enrollCapturedPhoto ? (
                 <>
                   <video
@@ -1001,20 +1001,20 @@ export function AttendanceKiosk({
 
                   {/* Face Guide Oval - Proportional Biometric Framing */}
                   <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-3">
-                    <div className="relative w-48 h-62 border-2 border-emerald-400/80 rounded-[40px] flex flex-col items-center justify-between p-3 shadow-[0_0_25px_rgba(16,185,129,0.25)] bg-emerald-500/5">
-                      <div className="absolute -top-1 -left-1 w-3.5 h-3.5 border-t-2 border-l-2 border-emerald-400 rounded-tl-md"></div>
-                      <div className="absolute -top-1 -right-1 w-3.5 h-3.5 border-t-2 border-r-2 border-emerald-400 rounded-tr-md"></div>
-                      <div className="absolute -bottom-1 -left-1 w-3.5 h-3.5 border-b-2 border-l-2 border-emerald-400 rounded-bl-md"></div>
-                      <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 border-b-2 border-r-2 border-emerald-400 rounded-br-md"></div>
+                    <div className="relative w-48 h-62 border-2 border-[#B4E0E8]/80 rounded-[40px] flex flex-col items-center justify-between p-3 shadow-[0_0_25px_rgba(180,224,232,0.25)] bg-[#B4E0E8]/5">
+                      <div className="absolute -top-1 -left-1 w-3.5 h-3.5 border-t-2 border-l-2 border-[#B4E0E8] rounded-tl-md"></div>
+                      <div className="absolute -top-1 -right-1 w-3.5 h-3.5 border-t-2 border-r-2 border-[#B4E0E8] rounded-tr-md"></div>
+                      <div className="absolute -bottom-1 -left-1 w-3.5 h-3.5 border-b-2 border-l-2 border-[#B4E0E8] rounded-bl-md"></div>
+                      <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 border-b-2 border-r-2 border-[#B4E0E8] rounded-br-md"></div>
 
-                      <span className="text-[10px] bg-slate-950/85 text-emerald-300 px-2.5 py-0.5 rounded-full font-mono border border-emerald-500/30">
+                      <span className="text-[10px] bg-[#00112C]/90 text-[#B4E0E8] px-2.5 py-0.5 rounded-full font-mono border border-[#093478]">
                         Posisikan Wajah
                       </span>
                     </div>
                   </div>
 
-                  <div className="absolute bottom-3 inset-x-3 bg-slate-950/85 backdrop-blur-md rounded-xl p-2.5 text-center text-xs">
-                    <span className="text-emerald-400 font-semibold flex items-center justify-center gap-1.5">
+                  <div className="absolute bottom-3 inset-x-3 bg-[#00112C]/90 backdrop-blur-md rounded-xl p-2.5 text-center text-xs border border-[#093478]">
+                    <span className="text-[#B4E0E8] font-semibold flex items-center justify-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" />
                       {enrollFaceDetected
                         ? 'Wajah siap diambil!'
@@ -1029,7 +1029,7 @@ export function AttendanceKiosk({
                     alt="Captured Face"
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute bottom-3 inset-x-3 bg-emerald-500 text-slate-950 font-bold rounded-xl p-2 text-center text-xs flex items-center justify-center gap-1.5 shadow-lg">
+                  <div className="absolute bottom-3 inset-x-3 bg-[#B4E0E8] text-[#011E4D] font-bold rounded-xl p-2 text-center text-xs flex items-center justify-center gap-1.5 shadow-lg">
                     <CheckCircle2 className="w-4 h-4" />
                     Foto Wajah Siap Digunakan
                   </div>
@@ -1043,7 +1043,7 @@ export function AttendanceKiosk({
                 <button
                   type="button"
                   onClick={handleCaptureEnrollSnapshot}
-                  className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-black rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center gap-2"
                 >
                   <Camera className="w-4 h-4" />
                   <span>Ambil Foto Referensi</span>
@@ -1053,7 +1053,7 @@ export function AttendanceKiosk({
                   <button
                     type="button"
                     onClick={() => setEnrollCapturedPhoto(null)}
-                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl text-xs cursor-pointer flex items-center gap-1.5"
+                    className="px-4 py-2.5 bg-[#00112C] hover:bg-[#B4E0E8] text-slate-300 hover:text-[#011E4D] font-medium rounded-xl text-xs cursor-pointer flex items-center gap-1.5 border border-[#093478] hover:border-[#B4E0E8] transition"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Ulangi</span>
@@ -1063,7 +1063,7 @@ export function AttendanceKiosk({
                     type="button"
                     onClick={handleSaveEnrollment}
                     disabled={isSavingEnrollment}
-                    className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-black rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {isSavingEnrollment ? 'Menyimpan...' : 'Simpan & Daftarkan Wajah'}
                   </button>

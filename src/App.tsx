@@ -124,7 +124,7 @@ function MainApp() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
+    <div className="min-h-screen bg-[#00112C] text-slate-100 flex flex-col font-sans selection:bg-[#B4E0E8] selection:text-[#011E4D]">
       {/* Header */}
       <Header
         activeTab={activeTab}
@@ -169,9 +169,9 @@ function MainApp() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950/80 py-6 text-center text-xs text-slate-500">
+      <footer className="border-t border-[#093478] bg-[#011E4D]/90 py-6 text-center text-xs text-slate-300">
         <p>
-          Presensi Pintar GPS & Face Recognition • Terintegrasi Firebase Firestore Enterprise
+          Absensi Karyawan GPS & Face Recognition • Terintegrasi Firebase Firestore Enterprise
         </p>
       </footer>
 
