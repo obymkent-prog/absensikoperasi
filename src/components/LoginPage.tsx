@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import {
-  Camera,
-  FileSpreadsheet,
   AlertCircle,
   Lock,
 } from 'lucide-react';
@@ -58,16 +56,6 @@ export function LoginPage({}: LoginPageProps) {
         <p className="mt-1.5 text-xs text-slate-300 max-w-sm mx-auto font-medium">
           Koperasi Garuda Merah Putih
         </p>
-
-        {/* Feature Badges */}
-        <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
-          <span className="bg-[#011E4D] border border-[#093478] text-slate-200 text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1">
-            <Camera className="w-3 h-3 text-[#B4E0E8]" /> Face AI Biometrik
-          </span>
-          <span className="bg-[#011E4D] border border-[#093478] text-slate-200 text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1">
-            <FileSpreadsheet className="w-3 h-3 text-[#B4E0E8]" /> Rekap Excel
-          </span>
-        </div>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 relative z-10">
@@ -114,8 +102,8 @@ export function LoginPage({}: LoginPageProps) {
               </span>
             </button>
 
-            <p className="text-[11px] text-center text-slate-500 leading-relaxed">
-              Otentikasi aman terenkripsi via Firebase Authentication. Hak akses role (Manager/Karyawan) akan otomatis diverifikasi.
+            <p className="text-xs text-center text-slate-300 leading-relaxed font-medium">
+              Masuk Menggunakan Email dan Jangan Lupa Ijinkan Penggunaan Lokasi dan juga Penggunaan Kamera.
             </p>
           </div>
 
@@ -128,8 +116,10 @@ export function LoginPage({}: LoginPageProps) {
           )}
         </div>
 
-        <p className="mt-4 text-center text-[11px] text-slate-500">
-          Dilindungi oleh Firebase Security Rules & Enkripsi End-to-End
+        <p className="mt-6 text-center text-xs text-slate-400 leading-relaxed">
+          Copyright © 2026 Obym Rifdillah.
+          <br />
+          All Rights Reserved.
         </p>
       </div>
     </div>
