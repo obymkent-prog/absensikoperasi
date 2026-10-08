@@ -16,6 +16,8 @@ import {
   User,
   X,
   UserPlus,
+  Clock,
+  Info,
 } from 'lucide-react';
 import {
   Employee,
@@ -686,6 +688,17 @@ export function AttendanceKiosk({
               </div>
             </div>
 
+            {/* Input Catatan Kerja (Opsional) */}
+            <div className="mb-3.5">
+              <input
+                type="text"
+                placeholder="Catatan / keterangan kerja (Opsional)..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#B4E0E8]"
+              />
+            </div>
+
             {/* Feedback message banner if triggered */}
             {feedbackMessage && (
               <div
@@ -973,165 +986,52 @@ export function AttendanceKiosk({
             </div>
           )}
 
-          {/* Work Type Selector */}
-          <div className="mb-5">
-            <label className="block text-xs font-semibold text-slate-300 mb-2">
-              Tipe Kehadiran:
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => setWorkType('wfo')}
-                className={`py-2 px-3 rounded-xl text-xs font-bold transition cursor-pointer flex flex-col items-center gap-1 ${
-                  workType === 'wfo'
-                    ? 'bg-[#B4E0E8] text-[#011E4D] shadow-md shadow-[#B4E0E8]/20'
-                    : 'bg-[#00112C] text-slate-300 hover:bg-[#B4E0E8] hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8]'
-                }`}
-              >
-                <Building2 className="w-4 h-4" />
-                <span>WFO (Kantor)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setWorkType('wfh')}
-                className={`py-2 px-3 rounded-xl text-xs font-bold transition cursor-pointer flex flex-col items-center gap-1 ${
-                  workType === 'wfh'
-                    ? 'bg-[#B4E0E8] text-[#011E4D] shadow-md shadow-[#B4E0E8]/20'
-                    : 'bg-[#00112C] text-slate-300 hover:bg-[#B4E0E8] hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8]'
-                }`}
-              >
-                <Navigation className="w-4 h-4" />
-                <span>WFH (Rumah)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setWorkType('dinas')}
-                className={`py-2 px-3 rounded-xl text-xs font-bold transition cursor-pointer flex flex-col items-center gap-1 ${
-                  workType === 'dinas'
-                    ? 'bg-[#B4E0E8] text-[#011E4D] shadow-md shadow-[#B4E0E8]/20'
-                    : 'bg-[#00112C] text-slate-300 hover:bg-[#B4E0E8] hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8]'
-                }`}
-              >
-                <MapPin className="w-4 h-4" />
-                <span>Dinas Luar</span>
-              </button>
-            </div>
-            {workType !== 'wfo' && (
-              <p className="text-[11px] text-[#B4E0E8] mt-1.5 italic">
-                * Presensi {workType.toUpperCase()} dapat dilakukan di luar radius kantor.
-              </p>
-            )}
-          </div>
-
-          {/* Notes Input */}
-          <div className="mb-6">
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-              Catatan Aktivitas (Opsional):
-            </label>
-            <input
-              type="text"
-              placeholder="Contoh: Meeting divisi / tugas dinas luar..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-[#B4E0E8]"
-            />
-          </div>
-
-          {/* Feedback Message */}
-          {feedbackMessage && (
-            <div
-              className={`mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-2.5 animate-fade-in ${
-                feedbackMessage.type === 'success'
-                  ? 'bg-[#022864] text-[#B4E0E8] border border-[#B4E0E8]/30'
-                  : 'bg-rose-500/10 text-rose-300 border border-rose-500/30'
-              }`}
-            >
-              {feedbackMessage.type === 'success' ? (
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-[#B4E0E8] mt-0.5" />
-              ) : (
-                <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
-              )}
-              <span>{feedbackMessage.text}</span>
-            </div>
-          )}
-
-          {/* Action Buttons: Check-In and Check-Out */}
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={handleCheckIn}
-                disabled={isSubmitting || !currentEmployee || Boolean(todayAttendance)}
-                className={`py-3.5 px-4 rounded-2xl font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer ${
-                  todayAttendance
-                    ? 'bg-[#00112C] text-slate-400 border border-[#093478] cursor-not-allowed opacity-80'
-                    : 'bg-[#B4E0E8] hover:bg-white text-[#011E4D] shadow-[#B4E0E8]/20 disabled:opacity-50 disabled:cursor-not-allowed'
-                }`}
-              >
-                {isSubmitting && !todayAttendance ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Mencatat...</span>
-                  </>
-                ) : todayAttendance ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-[#B4E0E8]" />
-                    <span className="text-xs">SUDAH MASUK</span>
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="w-4 h-4" />
-                    <span>ABSEN MASUK</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleCheckOut}
-                disabled={isSubmitting || !currentEmployee || !todayAttendance || Boolean(todayAttendance.checkOutTime)}
-                className={`py-3.5 px-4 rounded-2xl font-bold text-sm transition flex items-center justify-center gap-2 cursor-pointer ${
-                  !todayAttendance
-                    ? 'bg-[#00112C] text-slate-500 border border-[#093478] cursor-not-allowed opacity-60'
-                    : todayAttendance.checkOutTime
-                    ? 'bg-[#00112C] text-slate-400 border border-[#093478] cursor-not-allowed opacity-80'
-                    : 'bg-[#022864] hover:bg-[#B4E0E8] text-white hover:text-[#011E4D] border border-[#B4E0E8]/40 shadow-lg'
-                }`}
-              >
-                {isSubmitting && todayAttendance && !todayAttendance.checkOutTime ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Menyimpan...</span>
-                  </>
-                ) : !todayAttendance ? (
-                  <>
-                    <LogOut className="w-4 h-4 opacity-40" />
-                    <span>ABSEN PULANG</span>
-                  </>
-                ) : todayAttendance.checkOutTime ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-sky-400" />
-                    <span className="text-xs">SUDAH PULANG</span>
-                  </>
-                ) : (
-                  <>
-                    <LogOut className="w-4 h-4" />
-                    <span>ABSEN PULANG</span>
-                  </>
-                )}
-              </button>
+          {/* Ketentuan Jam Kerja & Petunjuk Presensi */}
+          <div className="space-y-4">
+            <div className="bg-[#00112C]/60 border border-[#093478] rounded-2xl p-4">
+              <h4 className="text-xs font-bold text-slate-200 flex items-center gap-2 mb-3">
+                <Clock className="w-4 h-4 text-[#B4E0E8]" />
+                Ketentuan Jam Kerja Kantor
+              </h4>
+              <div className="grid grid-cols-2 gap-2.5 text-xs">
+                <div className="bg-[#011E4D]/60 p-2.5 rounded-xl border border-[#093478]/70">
+                  <span className="text-slate-400 block text-[11px]">Jam Masuk</span>
+                  <span className="font-bold text-white font-mono">
+                    {officeSetting.workStartTime || '08:00'} WIB
+                  </span>
+                </div>
+                <div className="bg-[#011E4D]/60 p-2.5 rounded-xl border border-[#093478]/70">
+                  <span className="text-slate-400 block text-[11px]">Jam Pulang</span>
+                  <span className="font-bold text-white font-mono">
+                    {officeSetting.workEndTime || '17:00'} WIB
+                  </span>
+                </div>
+                <div className="bg-[#011E4D]/60 p-2.5 rounded-xl border border-[#093478]/70">
+                  <span className="text-slate-400 block text-[11px]">Toleransi Telat</span>
+                  <span className="font-bold text-[#B4E0E8] font-mono">
+                    {officeSetting.lateToleranceMinutes || 15} Menit
+                  </span>
+                </div>
+                <div className="bg-[#011E4D]/60 p-2.5 rounded-xl border border-[#093478]/70">
+                  <span className="text-slate-400 block text-[11px]">Radius Presensi</span>
+                  <span className="font-bold text-[#B4E0E8] font-mono">
+                    {officeSetting.radiusMeters} Meter
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {todayAttendance && (
-              <p className="text-[11px] text-center text-slate-400">
-                Check-in masuk tercatat pukul <strong className="text-slate-200">{todayAttendance.checkInTime}</strong>
-                {todayAttendance.checkOutTime && (
-                  <> • Pulang pukul <strong className="text-slate-200">{todayAttendance.checkOutTime}</strong></>
-                )}
-              </p>
-            )}
+            <div className="bg-[#00112C]/40 border border-[#093478]/60 rounded-2xl p-4">
+              <h4 className="text-xs font-bold text-slate-300 flex items-center gap-2 mb-2">
+                <Info className="w-4 h-4 text-[#B4E0E8]" />
+                Petunjuk Presensi
+              </h4>
+              <ul className="text-xs text-slate-300/90 space-y-2 list-disc list-inside leading-relaxed">
+                <li>Arahkan wajah tegak ke kamera hingga terdeteksi biometrik.</li>
+                <li>Pilih tipe presensi (WFO / WFH / Dinas Luar) di bawah kamera.</li>
+                <li>Tekan tombol <strong className="text-[#B4E0E8]">ABSEN MASUK</strong> atau <strong className="text-white">ABSEN PULANG</strong> di bawah pemindai wajah.</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
