@@ -9,6 +9,7 @@ import {
   Sparkles,
   Building2,
   ArrowRight,
+  LogIn,
   LogOut,
   Navigation,
   ShieldCheck,
@@ -636,6 +637,158 @@ export function AttendanceKiosk({
               <span>{cameraError}</span>
             </div>
           )}
+
+          {/* Tombol ABSEN MASUK (Check-In) dan ABSEN PULANG (Check-Out) tepat di bawah Pemindai Wajah */}
+          <div className="mt-5 pt-5 border-t border-[#093478]">
+            {/* Quick Work Type selector above action buttons */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3.5">
+              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B4E0E8]"></span>
+                Tipe Presensi:
+              </span>
+              <div className="flex items-center gap-1 bg-[#00112C] p-1 rounded-xl border border-[#093478]">
+                <button
+                  type="button"
+                  onClick={() => setWorkType('wfo')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                    workType === 'wfo'
+                      ? 'bg-[#B4E0E8] text-[#011E4D] shadow-sm'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <Building2 className="w-3.5 h-3.5" />
+                  <span>WFO (Kantor)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWorkType('wfh')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                    workType === 'wfh'
+                      ? 'bg-[#B4E0E8] text-[#011E4D] shadow-sm'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <Navigation className="w-3.5 h-3.5" />
+                  <span>WFH</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWorkType('dinas')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                    workType === 'dinas'
+                      ? 'bg-[#B4E0E8] text-[#011E4D] shadow-sm'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Dinas Luar</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Feedback message banner if triggered */}
+            {feedbackMessage && (
+              <div
+                className={`mb-3.5 p-3.5 rounded-2xl text-xs flex items-start gap-2.5 animate-fade-in ${
+                  feedbackMessage.type === 'success'
+                    ? 'bg-[#022864] text-[#B4E0E8] border border-[#B4E0E8]/40 shadow-lg'
+                    : 'bg-rose-500/10 text-rose-300 border border-rose-500/30'
+                }`}
+              >
+                {feedbackMessage.type === 'success' ? (
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-[#B4E0E8] mt-0.5" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
+                )}
+                <span className="font-medium">{feedbackMessage.text}</span>
+              </div>
+            )}
+
+            {/* Dua Tombol Presensi Utama: ABSEN MASUK & ABSEN PULANG */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* Tombol ABSEN MASUK (Check-In) */}
+              <button
+                type="button"
+                onClick={handleCheckIn}
+                disabled={isSubmitting || !currentEmployee || Boolean(todayAttendance)}
+                className={`py-3.5 px-4 rounded-2xl font-black text-sm shadow-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer ${
+                  todayAttendance
+                    ? 'bg-[#00112C] text-slate-400 border border-[#093478] cursor-not-allowed opacity-80'
+                    : 'bg-[#B4E0E8] hover:bg-white text-[#011E4D] shadow-[#B4E0E8]/25 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed'
+                }`}
+              >
+                {isSubmitting && !todayAttendance ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin text-[#011E4D]" />
+                    <span>Mencatat Presensi Masuk...</span>
+                  </>
+                ) : todayAttendance ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-[#B4E0E8]" />
+                    <span className="text-xs">SUDAH MASUK ({todayAttendance.checkInTime})</span>
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-4 h-4 text-[#011E4D]" />
+                    <span>ABSEN MASUK (Check-In)</span>
+                  </>
+                )}
+              </button>
+
+              {/* Tombol ABSEN PULANG (Check-Out) */}
+              <button
+                type="button"
+                onClick={handleCheckOut}
+                disabled={isSubmitting || !currentEmployee || !todayAttendance || Boolean(todayAttendance.checkOutTime)}
+                className={`py-3.5 px-4 rounded-2xl font-black text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer ${
+                  !todayAttendance
+                    ? 'bg-[#00112C] text-slate-500 border border-[#093478] cursor-not-allowed opacity-60'
+                    : todayAttendance.checkOutTime
+                    ? 'bg-[#00112C] text-slate-400 border border-[#093478] cursor-not-allowed opacity-80'
+                    : 'bg-[#022864] hover:bg-[#B4E0E8] text-white hover:text-[#011E4D] border-2 border-[#B4E0E8] shadow-xl shadow-[#022864]/40 hover:scale-[1.01] active:scale-[0.99]'
+                }`}
+              >
+                {isSubmitting && todayAttendance && !todayAttendance.checkOutTime ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Menyimpan Presensi Pulang...</span>
+                  </>
+                ) : !todayAttendance ? (
+                  <>
+                    <LogOut className="w-4 h-4 opacity-40" />
+                    <span>ABSEN PULANG (Check-Out)</span>
+                  </>
+                ) : todayAttendance.checkOutTime ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-sky-400" />
+                    <span className="text-xs">SUDAH PULANG ({todayAttendance.checkOutTime})</span>
+                  </>
+                ) : (
+                  <>
+                    <LogOut className="w-4 h-4 text-[#B4E0E8]" />
+                    <span>ABSEN PULANG (Check-Out)</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Status ringkasan di bawah tombol */}
+            <div className="mt-2.5 text-center">
+              {!todayAttendance ? (
+                <span className="text-[11px] text-slate-400">
+                  Arahkan wajah ke kamera, pastikan status verifikasi aktif lalu tekan <strong className="text-[#B4E0E8]">ABSEN MASUK</strong>
+                </span>
+              ) : !todayAttendance.checkOutTime ? (
+                <span className="text-[11px] text-slate-300">
+                  Presensi Masuk tercatat pukul <strong className="text-[#B4E0E8] font-mono">{todayAttendance.checkInTime}</strong>. Klik <strong className="text-white">ABSEN PULANG</strong> saat jam kerja berakhir.
+                </span>
+              ) : (
+                <span className="text-[11px] text-[#B4E0E8] font-medium">
+                  ✓ Presensi hari ini telah lengkap (Masuk: {todayAttendance.checkInTime} • Pulang: {todayAttendance.checkOutTime})
+                </span>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* GPS Geofence Radar Card (Real GPS only) */}
@@ -906,60 +1059,78 @@ export function AttendanceKiosk({
 
           {/* Action Buttons: Check-In and Check-Out */}
           <div className="space-y-3">
-            {!todayAttendance ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={handleCheckIn}
-                disabled={isSubmitting || !currentEmployee}
-                className="w-full py-3.5 px-4 rounded-2xl bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-black text-sm shadow-xl shadow-[#B4E0E8]/20 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isSubmitting || !currentEmployee || Boolean(todayAttendance)}
+                className={`py-3.5 px-4 rounded-2xl font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer ${
+                  todayAttendance
+                    ? 'bg-[#00112C] text-slate-400 border border-[#093478] cursor-not-allowed opacity-80'
+                    : 'bg-[#B4E0E8] hover:bg-white text-[#011E4D] shadow-[#B4E0E8]/20 disabled:opacity-50 disabled:cursor-not-allowed'
+                }`}
               >
-                {isSubmitting ? (
+                {isSubmitting && !todayAttendance ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Mencatat Presensi...</span>
+                    <span>Mencatat...</span>
+                  </>
+                ) : todayAttendance ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-[#B4E0E8]" />
+                    <span className="text-xs">SUDAH MASUK</span>
                   </>
                 ) : (
                   <>
-                    <ArrowRight className="w-5 h-5" />
-                    <span>ABSEN MASUK (Check-In)</span>
+                    <LogIn className="w-4 h-4" />
+                    <span>ABSEN MASUK</span>
                   </>
                 )}
               </button>
-            ) : (
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={handleCheckOut}
-                  disabled={isSubmitting || Boolean(todayAttendance.checkOutTime)}
-                  className={`w-full py-3.5 px-4 rounded-2xl font-bold text-sm transition flex items-center justify-center gap-2 cursor-pointer ${
-                    todayAttendance.checkOutTime
-                      ? 'bg-[#00112C] text-slate-500 cursor-not-allowed border border-[#093478]'
-                      : 'bg-[#022864] hover:bg-[#B4E0E8] text-white hover:text-[#011E4D] border border-[#B4E0E8]/40 shadow-lg'
-                  }`}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Menyimpan Pulang...</span>
-                    </>
-                  ) : todayAttendance.checkOutTime ? (
-                    <>
-                      <CheckCircle2 className="w-5 h-5 text-[#B4E0E8]" />
-                      <span>Presensi Lengkap (Sudah Pulang)</span>
-                    </>
-                  ) : (
-                    <>
-                      <LogOut className="w-5 h-5" />
-                      <span>ABSEN PULANG (Check-Out)</span>
-                    </>
-                  )}
-                </button>
 
-                <p className="text-[11px] text-center text-slate-400">
-                  Check-in masuk Anda tercatat pada pukul{' '}
-                  <strong className="text-slate-200">{todayAttendance.checkInTime}</strong>
-                </p>
-              </div>
+              <button
+                type="button"
+                onClick={handleCheckOut}
+                disabled={isSubmitting || !currentEmployee || !todayAttendance || Boolean(todayAttendance.checkOutTime)}
+                className={`py-3.5 px-4 rounded-2xl font-bold text-sm transition flex items-center justify-center gap-2 cursor-pointer ${
+                  !todayAttendance
+                    ? 'bg-[#00112C] text-slate-500 border border-[#093478] cursor-not-allowed opacity-60'
+                    : todayAttendance.checkOutTime
+                    ? 'bg-[#00112C] text-slate-400 border border-[#093478] cursor-not-allowed opacity-80'
+                    : 'bg-[#022864] hover:bg-[#B4E0E8] text-white hover:text-[#011E4D] border border-[#B4E0E8]/40 shadow-lg'
+                }`}
+              >
+                {isSubmitting && todayAttendance && !todayAttendance.checkOutTime ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Menyimpan...</span>
+                  </>
+                ) : !todayAttendance ? (
+                  <>
+                    <LogOut className="w-4 h-4 opacity-40" />
+                    <span>ABSEN PULANG</span>
+                  </>
+                ) : todayAttendance.checkOutTime ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-sky-400" />
+                    <span className="text-xs">SUDAH PULANG</span>
+                  </>
+                ) : (
+                  <>
+                    <LogOut className="w-4 h-4" />
+                    <span>ABSEN PULANG</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {todayAttendance && (
+              <p className="text-[11px] text-center text-slate-400">
+                Check-in masuk tercatat pukul <strong className="text-slate-200">{todayAttendance.checkInTime}</strong>
+                {todayAttendance.checkOutTime && (
+                  <> • Pulang pukul <strong className="text-slate-200">{todayAttendance.checkOutTime}</strong></>
+                )}
+              </p>
             )}
           </div>
         </div>
