@@ -405,6 +405,11 @@ export function AttendanceKiosk({
       const status: AttendanceStatus =
         currentMinutes > limitMinutes ? 'terlambat' : 'tepat_waktu';
 
+      const inLat = currentCoords?.latitude || officeSetting.latitude;
+      const inLng = currentCoords?.longitude || officeSetting.longitude;
+      const inDistance = Math.round(distanceToOfficeMeters || 0);
+      const inGeofence = Boolean(isWithinGeofence);
+
       // Record check-in to Firestore
       await recordCheckIn({
         employeeId: currentEmployee.id,
@@ -415,13 +420,19 @@ export function AttendanceKiosk({
         checkInTime,
         type: workType,
         status,
-        locationLat: currentCoords?.latitude || officeSetting.latitude,
-        locationLng: currentCoords?.longitude || officeSetting.longitude,
-        distanceToOfficeMeters: Math.round(distanceToOfficeMeters || 0),
-        isWithinGeofence: Boolean(isWithinGeofence),
+        locationLat: inLat,
+        locationLng: inLng,
+        distanceToOfficeMeters: inDistance,
+        isWithinGeofence: inGeofence,
         verificationConfidence: detectedFace ? detectedFace.confidence : 92,
         photoSnapshot,
         notes: notes.trim(),
+        // Explicit Check-In specific attributes
+        checkInLocationLat: inLat,
+        checkInLocationLng: inLng,
+        checkInDistanceToOfficeMeters: inDistance,
+        checkInIsWithinGeofence: inGeofence,
+        checkInPhotoSnapshot: photoSnapshot,
       });
 
       // Play success audio & celebration confetti
@@ -465,12 +476,40 @@ export function AttendanceKiosk({
         second: '2-digit',
       });
 
-      await recordCheckOut(todayAttendance.id, checkOutTime, notes.trim());
+      // Capture check-out selfie if camera is active
+      let checkOutPhoto = '';
+      if (videoRef.current) {
+        checkOutPhoto =
+          captureSnapshot(
+            videoRef.current,
+            `${currentEmployee.name} • PULANG`
+          ) || '';
+      }
+
+      const outLat = currentCoords?.latitude || officeSetting.latitude;
+      const outLng = currentCoords?.longitude || officeSetting.longitude;
+      const outDistance = Math.round(distanceToOfficeMeters || 0);
+      const outGeofence = Boolean(isWithinGeofence);
+
+      await recordCheckOut(todayAttendance.id, {
+        checkOutTime,
+        notes: notes.trim(),
+        locationLat: outLat,
+        locationLng: outLng,
+        distanceToOfficeMeters: outDistance,
+        isWithinGeofence: outGeofence,
+        photoSnapshot: checkOutPhoto,
+      });
 
       soundPlayer.playChime('checkout');
+      confetti({
+        particleCount: 60,
+        spread: 60,
+        origin: { y: 0.7 },
+      });
       setFeedbackMessage({
         type: 'success',
-        text: `Presensi Pulang Berhasil! Tercatat pada pukul ${checkOutTime}. Terima kasih atas kerja keras Anda hari ini!`,
+        text: `Presensi Pulang Berhasil! Tercatat pada pukul ${checkOutTime} (Koordinat Pulang tersimpan). Terima kasih atas kerja keras Anda hari ini!`,
       });
     } catch (err: any) {
       console.error(err);

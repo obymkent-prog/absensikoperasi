@@ -39,6 +39,20 @@ export interface AttendanceRecord {
   notes: string;
   createdAt: string;
   updatedAt: string;
+
+  // Dedicated Check-In & Check-Out Detail & Coordinate Fields
+  checkInLocationLat?: number;
+  checkInLocationLng?: number;
+  checkInDistanceToOfficeMeters?: number;
+  checkInIsWithinGeofence?: boolean;
+  checkInPhotoSnapshot?: string;
+
+  checkOutLocationLat?: number;
+  checkOutLocationLng?: number;
+  checkOutDistanceToOfficeMeters?: number;
+  checkOutIsWithinGeofence?: boolean;
+  checkOutPhotoSnapshot?: string;
+  checkOutNotes?: string;
 }
 
 export interface OfficeSetting {

@@ -18,11 +18,35 @@ import {
   AlertTriangle,
   Loader2,
   Check,
+  Eye,
+  LogIn,
+  LogOut,
+  Navigation,
+  Compass,
+  AlertCircle,
+  Timer,
 } from 'lucide-react';
 import { AttendanceRecord, OfficeSetting, Employee, AttendanceStatus, WorkType } from '../types';
 import { exportAttendancesToExcel } from '../lib/excelExport';
 import { updateAttendanceRecord, deleteAttendanceRecord } from '../lib/firestoreService';
 import { useAuth } from '../context/AuthContext';
+
+function formatWorkDuration(checkIn: string, checkOut?: string): string | null {
+  if (!checkIn || !checkOut) return null;
+  const inParts = checkIn.split(':').map(Number);
+  const outParts = checkOut.split(':').map(Number);
+  if (inParts.length < 2 || outParts.length < 2 || isNaN(inParts[0]) || isNaN(outParts[0])) return null;
+
+  let inMinutes = inParts[0] * 60 + inParts[1];
+  let outMinutes = outParts[0] * 60 + outParts[1];
+  if (outMinutes < inMinutes) {
+    outMinutes += 24 * 60; // Overnight shift
+  }
+  const diff = outMinutes - inMinutes;
+  const hours = Math.floor(diff / 60);
+  const mins = diff % 60;
+  return `${hours} Jam ${mins} Menit`;
+}
 
 interface DashboardRecapProps {
   attendances: AttendanceRecord[];
@@ -78,11 +102,18 @@ export function DashboardRecap({ attendances, officeSetting, employees = [] }: D
 
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
+  // Manager View Detail State
+  const [viewingRecord, setViewingRecord] = useState<AttendanceRecord | null>(null);
+
   // Manager Edit State
   const [editingRecord, setEditingRecord] = useState<AttendanceRecord | null>(null);
   const [editDate, setEditDate] = useState<string>('');
   const [editCheckInTime, setEditCheckInTime] = useState<string>('');
   const [editCheckOutTime, setEditCheckOutTime] = useState<string>('');
+  const [editCheckInLat, setEditCheckInLat] = useState<string>('');
+  const [editCheckInLng, setEditCheckInLng] = useState<string>('');
+  const [editCheckOutLat, setEditCheckOutLat] = useState<string>('');
+  const [editCheckOutLng, setEditCheckOutLng] = useState<string>('');
   const [editType, setEditType] = useState<WorkType>('wfo');
   const [editStatus, setEditStatus] = useState<AttendanceStatus>('tepat_waktu');
   const [editIsWithinGeofence, setEditIsWithinGeofence] = useState<boolean>(true);
@@ -99,11 +130,45 @@ export function DashboardRecap({ attendances, officeSetting, employees = [] }: D
   // Toast / notification feedback
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
+  const handleOpenView = (record: AttendanceRecord) => {
+    setViewingRecord(record);
+  };
+
+  const handleSwitchFromViewToEdit = (record: AttendanceRecord) => {
+    setViewingRecord(null);
+    handleOpenEdit(record);
+  };
+
+  const handleSwitchFromViewToDelete = (record: AttendanceRecord) => {
+    setViewingRecord(null);
+    handleOpenDelete(record);
+  };
+
   const handleOpenEdit = (record: AttendanceRecord) => {
     setEditingRecord(record);
     setEditDate(record.date || '');
     setEditCheckInTime(record.checkInTime || '');
     setEditCheckOutTime(record.checkOutTime || '');
+    setEditCheckInLat(
+      record.checkInLocationLat !== undefined
+        ? String(record.checkInLocationLat)
+        : record.locationLat !== undefined
+        ? String(record.locationLat)
+        : ''
+    );
+    setEditCheckInLng(
+      record.checkInLocationLng !== undefined
+        ? String(record.checkInLocationLng)
+        : record.locationLng !== undefined
+        ? String(record.locationLng)
+        : ''
+    );
+    setEditCheckOutLat(
+      record.checkOutLocationLat !== undefined ? String(record.checkOutLocationLat) : ''
+    );
+    setEditCheckOutLng(
+      record.checkOutLocationLng !== undefined ? String(record.checkOutLocationLng) : ''
+    );
     setEditType(record.type || 'wfo');
     setEditStatus(record.status || 'tepat_waktu');
     setEditIsWithinGeofence(record.isWithinGeofence ?? true);
@@ -134,8 +199,30 @@ export function DashboardRecap({ attendances, officeSetting, employees = [] }: D
         notes: editNotes.trim(),
       };
 
+      if (editCheckInLat.trim() && editCheckInLng.trim()) {
+        const inLatNum = parseFloat(editCheckInLat);
+        const inLngNum = parseFloat(editCheckInLng);
+        if (!isNaN(inLatNum) && !isNaN(inLngNum)) {
+          updatePayload.locationLat = inLatNum;
+          updatePayload.locationLng = inLngNum;
+          updatePayload.checkInLocationLat = inLatNum;
+          updatePayload.checkInLocationLng = inLngNum;
+        }
+      }
+
       if (editCheckOutTime.trim()) {
         updatePayload.checkOutTime = editCheckOutTime.trim();
+      } else {
+        updatePayload.checkOutTime = '';
+      }
+
+      if (editCheckOutLat.trim() && editCheckOutLng.trim()) {
+        const outLatNum = parseFloat(editCheckOutLat);
+        const outLngNum = parseFloat(editCheckOutLng);
+        if (!isNaN(outLatNum) && !isNaN(outLngNum)) {
+          updatePayload.checkOutLocationLat = outLatNum;
+          updatePayload.checkOutLocationLng = outLngNum;
+        }
       }
 
       await updateAttendanceRecord(editingRecord.id, updatePayload);
@@ -630,10 +717,19 @@ export function DashboardRecap({ attendances, officeSetting, employees = [] }: D
                       {rec.notes || '-'}
                     </td>
 
-                    {/* Manager Action Buttons (Edit & Hapus) */}
+                    {/* Manager Action Buttons (View, Edit & Hapus) */}
                     {isManager && (
                       <td className="py-3 px-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenView(rec)}
+                            className="px-2.5 py-1.5 rounded-xl bg-[#00112C] hover:bg-sky-500 text-sky-300 hover:text-white border border-[#093478] hover:border-sky-400 transition text-xs font-semibold inline-flex items-center gap-1 cursor-pointer shadow-sm"
+                            title="Lihat detail presensi karyawan ini"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>View</span>
+                          </button>
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(rec)}
@@ -696,6 +792,492 @@ export function DashboardRecap({ attendances, officeSetting, employees = [] }: D
           </div>
         </div>
       )}
+
+      {/* View Attendance Record Modal (Manager Only) */}
+      {viewingRecord && (() => {
+        const inTime = viewingRecord.checkInTime;
+        const inLat = viewingRecord.checkInLocationLat ?? viewingRecord.locationLat;
+        const inLng = viewingRecord.checkInLocationLng ?? viewingRecord.locationLng;
+        const inDistance = viewingRecord.checkInDistanceToOfficeMeters ?? viewingRecord.distanceToOfficeMeters;
+        const inGeofence = viewingRecord.checkInIsWithinGeofence ?? viewingRecord.isWithinGeofence;
+        const inPhoto = viewingRecord.checkInPhotoSnapshot || viewingRecord.photoSnapshot;
+
+        const hasCheckOut = Boolean(viewingRecord.checkOutTime);
+        const outTime = viewingRecord.checkOutTime;
+        const outLat = viewingRecord.checkOutLocationLat ?? (hasCheckOut ? viewingRecord.locationLat : null);
+        const outLng = viewingRecord.checkOutLocationLng ?? (hasCheckOut ? viewingRecord.locationLng : null);
+        const outDistance = viewingRecord.checkOutDistanceToOfficeMeters ?? (hasCheckOut ? viewingRecord.distanceToOfficeMeters : null);
+        const outGeofence = viewingRecord.checkOutIsWithinGeofence ?? (hasCheckOut ? viewingRecord.isWithinGeofence : null);
+        const outPhoto = viewingRecord.checkOutPhotoSnapshot;
+        const workDuration = formatWorkDuration(inTime, outTime);
+
+        const areCoordinatesDifferent =
+          hasCheckOut &&
+          inLat !== null &&
+          inLat !== undefined &&
+          outLat !== null &&
+          outLat !== undefined &&
+          (Math.abs(inLat - outLat) > 0.00005 || Math.abs(inLng - (outLng || 0)) > 0.00005);
+
+        return (
+          <div className="fixed inset-0 z-50 bg-[#00112C]/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+            <div className="bg-[#011E4D] border border-[#093478] rounded-3xl p-5 sm:p-7 max-w-4xl w-full shadow-2xl relative my-6 max-h-[90vh] overflow-y-auto">
+              <button
+                onClick={() => setViewingRecord(null)}
+                className="absolute top-5 right-5 p-2 rounded-xl bg-[#00112C] hover:bg-[#B4E0E8] text-slate-300 hover:text-[#011E4D] cursor-pointer transition border border-[#093478] hover:border-[#B4E0E8]"
+                title="Tutup Modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-5 pr-12">
+                <div className="p-2.5 rounded-2xl bg-[#00112C] text-sky-300 border border-[#093478] shrink-0">
+                  <Eye className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-lg font-bold text-white">Detail Presensi Karyawan</h3>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#00112C] text-[#B4E0E8] border border-[#093478]">
+                      Role Manager
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-[#022864] text-white border border-[#B4E0E8]/30">
+                      {viewingRecord.date}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mt-0.5">
+                    Perbandingan rincian presensi Masuk (Check-In) vs Pulang (Check-Out) beserta foto dan koordinat GPS
+                  </p>
+                </div>
+              </div>
+
+              {/* Employee Profile Summary */}
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-[#00112C]/90 border border-[#093478] mb-5 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
+                <div className="flex items-center space-x-3.5">
+                  {inPhoto ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedPhoto({
+                          url: inPhoto,
+                          name: `${viewingRecord.employeeName} (Masuk)`,
+                          time: `${viewingRecord.date} • ${viewingRecord.checkInTime}`,
+                        })
+                      }
+                      className="relative group shrink-0 cursor-pointer"
+                      title="Klik untuk memperbesar foto masuk"
+                    >
+                      <img
+                        src={inPhoto}
+                        alt={viewingRecord.employeeName}
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-[#093478] group-hover:border-[#B4E0E8] transition"
+                      />
+                      <span className="absolute -bottom-1 -right-1 px-1 py-0.5 bg-[#00112C] rounded-md text-[9px] font-bold text-[#B4E0E8] border border-[#093478]">
+                        Masuk
+                      </span>
+                    </button>
+                  ) : (
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#011E4D] border border-[#093478] flex items-center justify-center text-[#B4E0E8] font-bold text-base shrink-0">
+                      {viewingRecord.employeeName.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+
+                  <div>
+                    <h4 className="text-base font-bold text-white">{viewingRecord.employeeName}</h4>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300 mt-0.5">
+                      <span className="font-mono text-white font-semibold">NIK: {viewingRecord.employeeNik}</span>
+                      <span>•</span>
+                      <span className="text-[#B4E0E8] flex items-center gap-1">
+                        <Building className="w-3 h-3" />
+                        {viewingRecord.department}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 shrink-0">
+                  <span
+                    className={`text-xs font-bold px-3 py-1 rounded-xl ${
+                      viewingRecord.type === 'wfo'
+                        ? 'bg-[#022864] text-[#B4E0E8] border border-[#B4E0E8]/40'
+                        : viewingRecord.type === 'wfh'
+                        ? 'bg-sky-500/10 text-sky-300 border border-sky-500/20'
+                        : 'bg-purple-500/10 text-purple-300 border border-purple-500/20'
+                    }`}
+                  >
+                    {viewingRecord.type === 'wfo' ? 'WFO (Kantor)' : viewingRecord.type === 'wfh' ? 'WFH (Rumah)' : 'Dinas Luar'}
+                  </span>
+                  <span
+                    className={`text-xs font-bold px-3 py-1 rounded-xl ${
+                      viewingRecord.status === 'tepat_waktu'
+                        ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                        : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                    }`}
+                  >
+                    {viewingRecord.status === 'tepat_waktu' ? 'Tepat Waktu' : viewingRecord.status === 'terlambat' ? 'Terlambat' : viewingRecord.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* TWO DEDICATED COLUMNS: CHECK-IN VS CHECK-OUT */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                {/* 1. KOTAK RINCIAN PRESENSI MASUK (CHECK-IN) */}
+                <div className="bg-[#00112C]/80 border-2 border-sky-500/40 rounded-3xl p-4 sm:p-5 flex flex-col justify-between shadow-lg relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-28 h-28 bg-sky-500/5 rounded-full blur-2xl pointer-events-none"></div>
+
+                  <div>
+                    {/* Section Header */}
+                    <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#093478]">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 rounded-xl bg-sky-500/10 text-sky-300 border border-sky-500/20">
+                          <LogIn className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="text-xs font-black tracking-wider uppercase text-sky-300">
+                            Presensi Masuk
+                          </span>
+                          <span className="text-[10px] block text-slate-400">Check-In Pagi</span>
+                        </div>
+                      </div>
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">
+                        {viewingRecord.status === 'tepat_waktu' ? 'Tepat Waktu' : 'Terlambat'}
+                      </span>
+                    </div>
+
+                    {/* Jam Masuk */}
+                    <div className="p-3 bg-[#011E4D]/80 rounded-2xl border border-[#093478] mb-3.5 flex items-center justify-between">
+                      <div>
+                        <span className="text-[11px] text-slate-400 block font-medium">Jam Masuk (Check-In)</span>
+                        <span className="text-xl font-black font-mono text-[#B4E0E8]">{inTime}</span>
+                      </div>
+                      <Clock className="w-6 h-6 text-sky-300/40" />
+                    </div>
+
+                    {/* Foto Verifikasi Masuk */}
+                    <div className="p-3 bg-[#011E4D]/60 rounded-2xl border border-[#093478] mb-3.5 flex items-center gap-3">
+                      {inPhoto ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSelectedPhoto({
+                              url: inPhoto,
+                              name: `${viewingRecord.employeeName} - Foto Masuk`,
+                              time: `${viewingRecord.date} • ${inTime}`,
+                            })
+                          }
+                          className="relative group shrink-0 cursor-pointer"
+                          title="Klik untuk melihat foto masuk"
+                        >
+                          <img
+                            src={inPhoto}
+                            alt="Foto Masuk"
+                            className="w-14 h-14 rounded-xl object-cover border border-[#093478] group-hover:border-[#B4E0E8] transition"
+                          />
+                          <span className="absolute bottom-0 right-0 p-0.5 bg-[#00112C] rounded text-[8px] text-[#B4E0E8] font-bold">
+                            Zoom
+                          </span>
+                        </button>
+                      ) : (
+                        <div className="w-14 h-14 rounded-xl bg-[#00112C] border border-[#093478] flex items-center justify-center text-slate-500 shrink-0">
+                          <Camera className="w-6 h-6" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-bold text-white mb-0.5">Verifikasi Wajah Masuk</div>
+                        <div className="text-[11px] text-slate-300 flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3 text-[#B4E0E8]" />
+                          <span>Akurasi: <strong className="text-[#B4E0E8]">{viewingRecord.verificationConfidence || 95}% Cocok</strong></span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">Biometrik tercatat saat check-in</div>
+                      </div>
+                    </div>
+
+                    {/* Detail Koordinat & Geofence GPS Masuk */}
+                    <div className="p-3.5 bg-[#011E4D]/80 rounded-2xl border border-[#093478] space-y-2">
+                      <div className="flex items-center justify-between text-xs pb-1 border-b border-[#093478]/50">
+                        <span className="text-slate-400 flex items-center gap-1.5 font-medium">
+                          <MapPin className="w-3.5 h-3.5 text-sky-300" />
+                          Koordinat Masuk:
+                        </span>
+                        {inLat !== undefined && inLng !== undefined ? (
+                          <span className="font-mono text-white font-bold text-xs">
+                            {inLat.toFixed(5)}, {inLng.toFixed(5)}
+                          </span>
+                        ) : (
+                          <span className="text-slate-500 italic text-xs">Tidak ada data</span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-400">Jarak ke Kantor:</span>
+                        <span className="font-mono text-[#B4E0E8] font-bold text-xs">
+                          {inDistance !== undefined ? `${inDistance} meter` : '-'}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-400">Status Geofence:</span>
+                        <span
+                          className={`font-bold px-2 py-0.5 rounded text-[10px] ${
+                            inGeofence
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                              : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                          }`}
+                        >
+                          {inGeofence ? '✓ Dalam Radius Kantor' : '✗ Luar Radius Kantor'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tombol Buka Titik Masuk di Google Maps */}
+                  {inLat !== undefined && inLng !== undefined && (
+                    <div className="mt-3.5 pt-3 border-t border-[#093478]">
+                      <a
+                        href={`https://www.google.com/maps?q=${inLat},${inLng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2 px-3 bg-[#00112C] hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 hover:border-sky-400 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
+                        title="Buka titik koordinat masuk di Google Maps"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Buka Titik Masuk di Google Maps</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. KOTAK RINCIAN PRESENSI PULANG (CHECK-OUT) */}
+                <div className={`bg-[#00112C]/80 border-2 ${
+                  hasCheckOut ? 'border-purple-500/40' : 'border-amber-500/30 border-dashed'
+                } rounded-3xl p-4 sm:p-5 flex flex-col justify-between shadow-lg relative overflow-hidden`}>
+                  <div className="absolute top-0 right-0 w-28 h-28 bg-purple-500/5 rounded-full blur-2xl pointer-events-none"></div>
+
+                  <div>
+                    {/* Section Header */}
+                    <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#093478]">
+                      <div className="flex items-center gap-2">
+                        <div className={`p-2 rounded-xl ${
+                          hasCheckOut
+                            ? 'bg-purple-500/10 text-purple-300 border border-purple-500/20'
+                            : 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
+                        }`}>
+                          <LogOut className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className={`text-xs font-black tracking-wider uppercase ${
+                            hasCheckOut ? 'text-purple-300' : 'text-amber-300'
+                          }`}>
+                            Presensi Pulang
+                          </span>
+                          <span className="text-[10px] block text-slate-400">Check-Out Sore</span>
+                        </div>
+                      </div>
+                      <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                        hasCheckOut
+                          ? 'bg-purple-500/15 text-purple-300 border border-purple-500/30'
+                          : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                      }`}>
+                        {hasCheckOut ? 'Sudah Pulang' : 'Belum Check-Out'}
+                      </span>
+                    </div>
+
+                    {hasCheckOut ? (
+                      <>
+                        {/* Jam Pulang */}
+                        <div className="p-3 bg-[#011E4D]/80 rounded-2xl border border-[#093478] mb-3.5 flex items-center justify-between">
+                          <div>
+                            <span className="text-[11px] text-slate-400 block font-medium">Jam Pulang (Check-Out)</span>
+                            <span className="text-xl font-black font-mono text-purple-300">{outTime}</span>
+                          </div>
+                          {workDuration ? (
+                            <div className="text-right">
+                              <span className="text-[10px] text-slate-400 block">Durasi Kerja</span>
+                              <span className="text-xs font-bold text-[#B4E0E8] font-mono flex items-center gap-1 justify-end">
+                                <Timer className="w-3.5 h-3.5 text-[#B4E0E8]" />
+                                {workDuration}
+                              </span>
+                            </div>
+                          ) : (
+                            <Clock className="w-6 h-6 text-purple-300/40" />
+                          )}
+                        </div>
+
+                        {/* Foto Verifikasi Pulang */}
+                        <div className="p-3 bg-[#011E4D]/60 rounded-2xl border border-[#093478] mb-3.5 flex items-center gap-3">
+                          {outPhoto ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setSelectedPhoto({
+                                  url: outPhoto,
+                                  name: `${viewingRecord.employeeName} - Foto Pulang`,
+                                  time: `${viewingRecord.date} • ${outTime}`,
+                                })
+                              }
+                              className="relative group shrink-0 cursor-pointer"
+                              title="Klik untuk melihat foto pulang"
+                            >
+                              <img
+                                src={outPhoto}
+                                alt="Foto Pulang"
+                                className="w-14 h-14 rounded-xl object-cover border border-[#093478] group-hover:border-purple-300 transition"
+                              />
+                              <span className="absolute bottom-0 right-0 p-0.5 bg-[#00112C] rounded text-[8px] text-purple-300 font-bold">
+                                Zoom
+                              </span>
+                            </button>
+                          ) : (
+                            <div className="w-14 h-14 rounded-xl bg-[#00112C] border border-[#093478] flex items-center justify-center text-purple-300/60 shrink-0">
+                              <CheckCircle className="w-6 h-6 text-purple-300" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-bold text-white mb-0.5">Verifikasi Pulang</div>
+                            <div className="text-[11px] text-slate-300">
+                              {outPhoto ? 'Foto selfie saat check-out tersimpan' : 'Presensi kepulangan terverifikasi sistem'}
+                            </div>
+                            <div className="text-[10px] text-purple-300 mt-0.5">Tercatat resmi pada basis data</div>
+                          </div>
+                        </div>
+
+                        {/* Detail Koordinat & Geofence GPS Pulang */}
+                        <div className="p-3.5 bg-[#011E4D]/80 rounded-2xl border border-[#093478] space-y-2">
+                          <div className="flex items-center justify-between text-xs pb-1 border-b border-[#093478]/50">
+                            <span className="text-slate-400 flex items-center gap-1.5 font-medium">
+                              <MapPin className="w-3.5 h-3.5 text-purple-300" />
+                              Koordinat Pulang:
+                            </span>
+                            {outLat !== null && outLat !== undefined && outLng !== null && outLng !== undefined ? (
+                              <span className="font-mono text-white font-bold text-xs">
+                                {outLat.toFixed(5)}, {outLng.toFixed(5)}
+                              </span>
+                            ) : (
+                              <span className="text-slate-500 italic text-xs">Sama dengan titik masuk</span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-slate-400">Jarak ke Kantor (Pulang):</span>
+                            <span className="font-mono text-purple-300 font-bold text-xs">
+                              {outDistance !== null && outDistance !== undefined ? `${outDistance} meter` : '-'}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-slate-400">Status Geofence Pulang:</span>
+                            <span
+                              className={`font-bold px-2 py-0.5 rounded text-[10px] ${
+                                outGeofence
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                              }`}
+                            >
+                              {outGeofence ? '✓ Dalam Radius Kantor' : '✗ Luar Radius Kantor'}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      /* Belum Check-Out Placeholder */
+                      <div className="py-6 px-4 text-center space-y-3 bg-[#011E4D]/40 rounded-2xl border border-[#093478]/60 my-2">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-300 border border-amber-500/20 flex items-center justify-center mx-auto">
+                          <AlertCircle className="w-6 h-6 animate-pulse" />
+                        </div>
+                        <div>
+                          <h5 className="text-sm font-bold text-white">Karyawan Belum Check-Out</h5>
+                          <p className="text-xs text-slate-300 mt-1 max-w-xs mx-auto leading-relaxed">
+                            Belum ada catatan waktu kepulangan dan koordinat pulang. Jam dan titik GPS akan tersimpan saat karyawan melakukan absen pulang di kios.
+                          </p>
+                        </div>
+                        <div className="pt-2">
+                          <button
+                            type="button"
+                            onClick={() => handleSwitchFromViewToEdit(viewingRecord)}
+                            className="px-3.5 py-1.5 bg-[#022864] hover:bg-[#B4E0E8] text-[#B4E0E8] hover:text-[#011E4D] border border-[#B4E0E8]/30 rounded-xl text-xs font-semibold cursor-pointer transition inline-flex items-center gap-1.5"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                            <span>Input Jam Pulang Manual</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Tombol Buka Titik Pulang di Google Maps */}
+                  {hasCheckOut && outLat !== null && outLat !== undefined && outLng !== null && outLng !== undefined && (
+                    <div className="mt-3.5 pt-3 border-t border-[#093478]">
+                      <a
+                        href={`https://www.google.com/maps?q=${outLat},${outLng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2 px-3 bg-[#00112C] hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:border-purple-400 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
+                        title="Buka titik koordinat pulang di Google Maps"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Buka Titik Pulang di Google Maps</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Highlight Perbedaan Koordinat Masuk vs Pulang jika ada */}
+              {areCoordinatesDifferent && (
+                <div className="mb-4 p-3 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl flex items-center gap-3 text-xs text-indigo-200">
+                  <Compass className="w-5 h-5 text-indigo-300 shrink-0" />
+                  <div>
+                    <strong className="text-white block font-semibold">Titik Koordinat Masuk & Pulang Berbeda:</strong>
+                    <span>
+                      Karyawan melakukan Check-In di ({inLat?.toFixed(5)}, {inLng?.toFixed(5)}) dan Check-Out di ({outLat?.toFixed(5)}, {outLng?.toFixed(5)}).
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Catatan / Keterangan */}
+              <div className="bg-[#00112C]/60 border border-[#093478] rounded-2xl p-3.5 mb-5">
+                <div className="text-xs text-slate-400 mb-1 font-medium">Catatan / Keterangan Kehadiran:</div>
+                <p className="text-xs text-slate-200 bg-[#00112C] border border-[#093478]/70 rounded-xl p-2.5 min-h-[42px]">
+                  {viewingRecord.notes || <span className="text-slate-500 italic">Tidak ada catatan untuk presensi ini.</span>}
+                </p>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="pt-3 border-t border-[#093478] flex flex-wrap items-center justify-between gap-2.5">
+                <div className="text-[11px] text-slate-400 font-mono truncate max-w-[200px]">
+                  ID: {viewingRecord.id}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchFromViewToEdit(viewingRecord)}
+                    className="px-4 py-2 rounded-xl bg-[#00112C] hover:bg-[#B4E0E8] text-[#B4E0E8] hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8] text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-sm"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    <span>Edit Data</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchFromViewToDelete(viewingRecord)}
+                    className="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-sm"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Hapus</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewingRecord(null)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition cursor-pointer"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Edit Attendance Record Modal (Manager Only) */}
       {editingRecord && (
@@ -860,6 +1442,62 @@ export function DashboardRecap({ attendances, officeSetting, employees = [] }: D
                     onChange={(e) => setEditDistance(Number(e.target.value))}
                     className="w-full bg-[#00112C] border border-[#093478] rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#B4E0E8]"
                   />
+                </div>
+
+                {/* Koordinat Check-In & Check-Out */}
+                <div className="sm:col-span-2 p-3.5 bg-[#00112C]/90 rounded-2xl border border-[#093478] space-y-3">
+                  <div className="text-xs font-bold text-[#B4E0E8] flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>Koordinat Lokasi GPS (Masuk & Pulang Terpisah)</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Koordinat Masuk */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-sky-300 mb-1">
+                        Koordinat Masuk (Lat, Lng)
+                      </label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <input
+                          type="text"
+                          placeholder="Lat Masuk (-6.xxx)"
+                          value={editCheckInLat}
+                          onChange={(e) => setEditCheckInLat(e.target.value)}
+                          className="w-full bg-[#011E4D] border border-[#093478] rounded-xl px-2.5 py-2 text-xs text-white font-mono focus:outline-none focus:border-[#B4E0E8]"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Lng Masuk (106.xxx)"
+                          value={editCheckInLng}
+                          onChange={(e) => setEditCheckInLng(e.target.value)}
+                          className="w-full bg-[#011E4D] border border-[#093478] rounded-xl px-2.5 py-2 text-xs text-white font-mono focus:outline-none focus:border-[#B4E0E8]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Koordinat Pulang */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-purple-300 mb-1">
+                        Koordinat Pulang (Lat, Lng)
+                      </label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <input
+                          type="text"
+                          placeholder="Lat Pulang (-6.xxx)"
+                          value={editCheckOutLat}
+                          onChange={(e) => setEditCheckOutLat(e.target.value)}
+                          className="w-full bg-[#011E4D] border border-[#093478] rounded-xl px-2.5 py-2 text-xs text-white font-mono focus:outline-none focus:border-[#B4E0E8]"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Lng Pulang (106.xxx)"
+                          value={editCheckOutLng}
+                          onChange={(e) => setEditCheckOutLng(e.target.value)}
+                          className="w-full bg-[#011E4D] border border-[#093478] rounded-xl px-2.5 py-2 text-xs text-white font-mono focus:outline-none focus:border-[#B4E0E8]"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

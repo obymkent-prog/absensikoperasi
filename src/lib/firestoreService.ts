@@ -153,23 +153,59 @@ export async function recordCheckIn(
   }
 }
 
+export interface CheckOutDetails {
+  checkOutTime: string;
+  notes?: string;
+  locationLat?: number;
+  locationLng?: number;
+  distanceToOfficeMeters?: number;
+  isWithinGeofence?: boolean;
+  photoSnapshot?: string;
+}
+
 /**
  * Record Check-Out
  */
 export async function recordCheckOut(
   attendanceId: string,
-  checkOutTime: string,
+  checkOutData: string | CheckOutDetails,
   notes?: string
 ): Promise<void> {
   const path = `attendances/${attendanceId}`;
   try {
     const updateData: Record<string, any> = {
-      checkOutTime,
       updatedAt: new Date().toISOString(),
     };
-    if (notes) {
-      updateData.notes = notes;
+
+    if (typeof checkOutData === 'string') {
+      updateData.checkOutTime = checkOutData;
+      if (notes) {
+        updateData.notes = notes;
+        updateData.checkOutNotes = notes;
+      }
+    } else {
+      updateData.checkOutTime = checkOutData.checkOutTime;
+      if (checkOutData.notes) {
+        updateData.notes = checkOutData.notes;
+        updateData.checkOutNotes = checkOutData.notes;
+      }
+      if (checkOutData.locationLat !== undefined) {
+        updateData.checkOutLocationLat = checkOutData.locationLat;
+      }
+      if (checkOutData.locationLng !== undefined) {
+        updateData.checkOutLocationLng = checkOutData.locationLng;
+      }
+      if (checkOutData.distanceToOfficeMeters !== undefined) {
+        updateData.checkOutDistanceToOfficeMeters = checkOutData.distanceToOfficeMeters;
+      }
+      if (checkOutData.isWithinGeofence !== undefined) {
+        updateData.checkOutIsWithinGeofence = checkOutData.isWithinGeofence;
+      }
+      if (checkOutData.photoSnapshot) {
+        updateData.checkOutPhotoSnapshot = checkOutData.photoSnapshot;
+      }
     }
+
     await updateDoc(doc(db, 'attendances', attendanceId), updateData);
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, path);
