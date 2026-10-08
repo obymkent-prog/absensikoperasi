@@ -9,6 +9,7 @@ import { LoginPage } from './components/LoginPage';
 import { Header } from './components/Header';
 import { AttendanceKiosk } from './components/AttendanceKiosk';
 import { DashboardRecap } from './components/DashboardRecap';
+import { LeaveRequestView } from './components/LeaveRequestView';
 import { EmployeeManagement } from './components/EmployeeManagement';
 import { SettingsView } from './components/SettingsView';
 import { NotificationCenterModal } from './components/NotificationCenterModal';
@@ -18,24 +19,27 @@ import {
   OfficeSetting,
   NotificationSetting,
   PushNotificationLog,
+  LeaveRequest,
 } from './types';
 import {
   seedInitialDataIfNeeded,
   subscribeEmployees,
   subscribeAttendances,
   subscribeOfficeSettings,
+  subscribeLeaveRequests,
   DEFAULT_OFFICE_SETTING,
   DEFAULT_NOTIFICATION_SETTING,
 } from './lib/firestoreService';
 import { checkScheduledReminders } from './lib/notifications';
 
 function MainApp() {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'kiosk' | 'recap' | 'employees' | 'settings'>('kiosk');
+  const { user, linkEmployee } = useAuth();
+  const [activeTab, setActiveTab] = useState<'kiosk' | 'leave' | 'recap' | 'employees' | 'settings'>('kiosk');
 
   // Firestore Synced States (Real live data only)
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [attendances, setAttendances] = useState<AttendanceRecord[]>([]);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [officeSetting, setOfficeSetting] = useState<OfficeSetting>(DEFAULT_OFFICE_SETTING);
   const [notificationSetting, setNotificationSetting] = useState<NotificationSetting>(() => {
     const saved = localStorage.getItem('presensi_notification_setting');
@@ -64,6 +68,10 @@ function MainApp() {
       setAttendances(list);
     });
 
+    const unsubLeave = subscribeLeaveRequests((list) => {
+      setLeaveRequests(list);
+    });
+
     const unsubOffice = subscribeOfficeSettings((setting) => {
       setOfficeSetting(setting);
     });
@@ -71,6 +79,7 @@ function MainApp() {
     return () => {
       unsubEmp();
       unsubAtt();
+      unsubLeave();
       unsubOffice();
     };
   }, []);
@@ -106,14 +115,39 @@ function MainApp() {
     return () => clearInterval(timer);
   }, [notificationSetting]);
 
+  // Auto-link user profile with Firestore employee record
+  useEffect(() => {
+    if (user && employees.length > 0 && !user.nik) {
+      const matched = employees.find(
+        (e) =>
+          (user.email && e.email && e.email.toLowerCase() === user.email.toLowerCase()) ||
+          e.id === user.uid ||
+          (user.displayName && e.name.toLowerCase() === user.displayName.toLowerCase())
+      );
+      if (matched) {
+        linkEmployee(matched);
+      }
+    }
+  }, [user, employees, linkEmployee]);
+
+  // Ensure Karyawan role is constrained to kiosk, leave, and recap tabs only
+  useEffect(() => {
+    if (user?.role === 'Karyawan' && (activeTab === 'employees' || activeTab === 'settings')) {
+      setActiveTab('kiosk');
+    }
+  }, [user?.role, activeTab]);
+
   // Handle update notification setting
   const handleUpdateNotificationSetting = (newSetting: NotificationSetting) => {
     setNotificationSetting(newSetting);
     localStorage.setItem('presensi_notification_setting', JSON.stringify(newSetting));
   };
 
-  // Switch to employee tab to enroll face
+  // Switch to employee tab to enroll face (Manager only)
   const handleNavigateToRegisterFace = (employeeId: string) => {
+    if (user?.role === 'Karyawan') {
+      return;
+    }
     setInitialEnrollingId(employeeId);
     setActiveTab('employees');
   };
@@ -123,6 +157,8 @@ function MainApp() {
     return <LoginPage employees={employees} />;
   }
 
+  const isManager = user.role === 'Manager';
+
   return (
     <div className="min-h-screen bg-[#00112C] text-slate-100 flex flex-col font-sans selection:bg-[#B4E0E8] selection:text-[#011E4D]">
       {/* Header */}
@@ -131,6 +167,7 @@ function MainApp() {
         setActiveTab={setActiveTab}
         notificationLogs={notificationLogs}
         onOpenNotifications={() => setIsNotifModalOpen(true)}
+        pendingLeaveCount={leaveRequests.filter((r) => r.status === 'pending').length}
       />
 
       {/* Main Content Area */}
@@ -144,14 +181,22 @@ function MainApp() {
           />
         )}
 
+        {activeTab === 'leave' && (
+          <LeaveRequestView
+            leaveRequests={leaveRequests}
+            employees={employees}
+          />
+        )}
+
         {activeTab === 'recap' && (
           <DashboardRecap
             attendances={attendances}
             officeSetting={officeSetting}
+            employees={employees}
           />
         )}
 
-        {activeTab === 'employees' && (
+        {activeTab === 'employees' && isManager && (
           <EmployeeManagement
             employees={employees}
             initialEnrollingEmployeeId={initialEnrollingId}
@@ -159,7 +204,7 @@ function MainApp() {
           />
         )}
 
-        {activeTab === 'settings' && (
+        {activeTab === 'settings' && isManager && (
           <SettingsView
             officeSetting={officeSetting}
             notificationSetting={notificationSetting}

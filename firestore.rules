@@ -45,6 +45,15 @@ service cloud.firestore {
              data.radiusMeters is number;
     }
 
+    function isValidLeaveRequest(data) {
+      return data.employeeId is string && data.employeeId.size() > 0 && data.employeeId.size() <= 64 &&
+             data.employeeName is string && data.employeeName.size() > 0 && data.employeeName.size() <= 100 &&
+             data.type is string && data.type.size() > 0 && data.type.size() <= 50 &&
+             data.startDate is string && data.startDate.size() > 0 && data.startDate.size() <= 20 &&
+             data.endDate is string && data.endDate.size() > 0 && data.endDate.size() <= 20 &&
+             data.status is string && data.status.size() > 0 && data.status.size() <= 30;
+    }
+
     // Employees Collection
     match /employees/{employeeId} {
       allow read: if true;
@@ -66,6 +75,14 @@ service cloud.firestore {
       allow read: if true;
       allow create, update: if isValidId(settingId) && isValidSetting(incoming());
       allow delete: if false;
+    }
+
+    // Leave Requests Collection
+    match /leaveRequests/{requestId} {
+      allow read: if true;
+      allow create: if isValidId(requestId) && isValidLeaveRequest(incoming());
+      allow update: if isValidId(requestId) && isValidLeaveRequest(incoming());
+      allow delete: if isValidId(requestId);
     }
 
     // Health / Connection Test

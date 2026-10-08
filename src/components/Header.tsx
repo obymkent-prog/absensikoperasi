@@ -3,6 +3,7 @@ import {
   Clock,
   MapPin,
   Camera,
+  CalendarDays,
   FileSpreadsheet,
   Users,
   Settings,
@@ -16,10 +17,11 @@ import { PushNotificationLog } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
-  activeTab: 'kiosk' | 'recap' | 'employees' | 'settings';
-  setActiveTab: (tab: 'kiosk' | 'recap' | 'employees' | 'settings') => void;
+  activeTab: 'kiosk' | 'leave' | 'recap' | 'employees' | 'settings';
+  setActiveTab: (tab: 'kiosk' | 'leave' | 'recap' | 'employees' | 'settings') => void;
   notificationLogs: PushNotificationLog[];
   onOpenNotifications: () => void;
+  pendingLeaveCount?: number;
 }
 
 export function Header({
@@ -27,8 +29,10 @@ export function Header({
   setActiveTab,
   notificationLogs,
   onOpenNotifications,
+  pendingLeaveCount,
 }: HeaderProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, setRole } = useAuth();
+  const isManager = user?.role === 'Manager';
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -111,7 +115,12 @@ export function Header({
                   <div className="text-xs font-bold text-white truncate max-w-[130px]">
                     {user.displayName}
                   </div>
-                  <div className="text-[10px] font-semibold flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setRole(user.role === 'Manager' ? 'Karyawan' : 'Manager')}
+                    className="mt-0.5 text-[10px] font-semibold flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-[#00112C] border border-[#093478] hover:border-[#B4E0E8] transition cursor-pointer"
+                    title="Klik untuk beralih mode Role (Manager / Karyawan)"
+                  >
                     <span
                       className={`inline-block w-1.5 h-1.5 rounded-full ${
                         user.role === 'Manager' ? 'bg-amber-400 animate-pulse' : 'bg-[#B4E0E8]'
@@ -119,12 +128,13 @@ export function Header({
                     ></span>
                     <span
                       className={
-                        user.role === 'Manager' ? 'text-amber-300 font-bold' : 'text-[#B4E0E8]'
+                        user.role === 'Manager' ? 'text-amber-300 font-bold' : 'text-[#B4E0E8] font-bold'
                       }
                     >
-                      {user.role === 'Manager' ? 'Manager (Akses Penuh)' : 'Karyawan'}
+                      {user.role === 'Manager' ? 'Role: Manager' : 'Role: Karyawan'}
                     </span>
-                  </div>
+                    <span className="text-[9px] text-slate-400">⇄ Ganti</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -171,6 +181,23 @@ export function Header({
           </button>
 
           <button
+            onClick={() => setActiveTab('leave')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'leave'
+                ? 'bg-[#B4E0E8] text-[#011E4D] font-bold shadow-lg shadow-[#B4E0E8]/20'
+                : 'text-slate-200 hover:text-[#011E4D] hover:bg-[#B4E0E8]'
+            }`}
+          >
+            <CalendarDays className="w-4 h-4" />
+            <span>Izin & Cuti</span>
+            {pendingLeaveCount !== undefined && pendingLeaveCount > 0 && (
+              <span className="ml-1 text-[10px] bg-amber-400 text-[#011E4D] font-bold px-1.5 py-0.5 rounded-full shadow-sm animate-pulse">
+                {pendingLeaveCount}
+              </span>
+            )}
+          </button>
+
+          <button
             onClick={() => setActiveTab('recap')}
             className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'recap'
@@ -182,34 +209,35 @@ export function Header({
             <span>Dashboard Rekapitulasi & Excel</span>
           </button>
 
-          <button
-            onClick={() => setActiveTab('employees')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'employees'
-                ? 'bg-[#B4E0E8] text-[#011E4D] font-bold shadow-lg shadow-[#B4E0E8]/20'
-                : 'text-slate-200 hover:text-[#011E4D] hover:bg-[#B4E0E8]'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Kelola Karyawan</span>
-            {user?.role !== 'Manager' && (
-              <span className="ml-1 text-[10px] bg-[#00112C] text-amber-300 px-1.5 py-0.5 rounded-md border border-amber-500/30">
-                Manager
-              </span>
-            )}
-          </button>
+          {/* Tab Kelola Karyawan (Hanya untuk Role Manager) */}
+          {isManager && (
+            <button
+              onClick={() => setActiveTab('employees')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'employees'
+                  ? 'bg-[#B4E0E8] text-[#011E4D] font-bold shadow-lg shadow-[#B4E0E8]/20'
+                  : 'text-slate-200 hover:text-[#011E4D] hover:bg-[#B4E0E8]'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Kelola Karyawan</span>
+            </button>
+          )}
 
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'settings'
-                ? 'bg-[#B4E0E8] text-[#011E4D] font-bold shadow-lg shadow-[#B4E0E8]/20'
-                : 'text-slate-200 hover:text-[#011E4D] hover:bg-[#B4E0E8]'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            <span>Pengaturan GPS & Notifikasi</span>
-          </button>
+          {/* Tab Pengaturan GPS & Notifikasi (Hanya untuk Role Manager) */}
+          {isManager && (
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'settings'
+                  ? 'bg-[#B4E0E8] text-[#011E4D] font-bold shadow-lg shadow-[#B4E0E8]/20'
+                  : 'text-slate-200 hover:text-[#011E4D] hover:bg-[#B4E0E8]'
+              }`}
+            >
+              <Settings className="w-4 h-4" />
+              <span>Pengaturan GPS & Notifikasi</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

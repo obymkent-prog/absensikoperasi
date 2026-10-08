@@ -74,6 +74,29 @@
         "updatedAt": { "type": "string", "maxLength": 50 }
       },
       "required": ["enabled", "checkInReminderTime", "checkOutReminderTime"]
+    },
+    "LeaveRequest": {
+      "title": "LeaveRequest",
+      "description": "Pengajuan permohonan izin tidak masuk atau cuti karyawan",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string", "maxLength": 64 },
+        "employeeNik": { "type": "string", "maxLength": 30 },
+        "employeeName": { "type": "string", "maxLength": 100 },
+        "department": { "type": "string", "maxLength": 50 },
+        "type": { "type": "string", "maxLength": 50 },
+        "startDate": { "type": "string", "maxLength": 20 },
+        "endDate": { "type": "string", "maxLength": 20 },
+        "totalDays": { "type": "number" },
+        "reason": { "type": "string", "maxLength": 1000 },
+        "attachmentUrl": { "type": "string", "maxLength": 50000 },
+        "status": { "type": "string", "maxLength": 30 },
+        "reviewedBy": { "type": "string", "maxLength": 100 },
+        "reviewNotes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["employeeId", "employeeName", "type", "startDate", "endDate", "status"]
     }
   },
   "firestore": {
@@ -88,6 +111,10 @@
     "/settings/{settingId}": {
       "schema": { "$ref": "OfficeSetting" },
       "description": "Data konfigurasi kantor dan aturan absensi"
+    },
+    "/leaveRequests/{requestId}": {
+      "schema": { "$ref": "LeaveRequest" },
+      "description": "Data permohonan pengajuan izin dan cuti karyawan"
     }
   }
 }

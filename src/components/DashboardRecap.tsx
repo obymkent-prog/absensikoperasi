@@ -14,17 +14,47 @@ import {
   ChevronDown,
   X,
 } from 'lucide-react';
-import { AttendanceRecord, OfficeSetting } from '../types';
+import { AttendanceRecord, OfficeSetting, Employee } from '../types';
 import { exportAttendancesToExcel } from '../lib/excelExport';
 import { useAuth } from '../context/AuthContext';
 
 interface DashboardRecapProps {
   attendances: AttendanceRecord[];
   officeSetting: OfficeSetting;
+  employees?: Employee[];
 }
 
-export function DashboardRecap({ attendances, officeSetting }: DashboardRecapProps) {
+export function DashboardRecap({ attendances, officeSetting, employees = [] }: DashboardRecapProps) {
   const { user, isManager } = useAuth();
+  const isKaryawan = user?.role === 'Karyawan';
+
+  // Find corresponding employee record for current user
+  const currentEmployee = useMemo(() => {
+    if (!employees || employees.length === 0) return null;
+    return (
+      employees.find(
+        (e) =>
+          (user?.email && e.email && e.email.toLowerCase() === user.email.toLowerCase()) ||
+          (user?.nik && e.nik === user.nik) ||
+          e.id === user?.uid ||
+          (user?.displayName && e.name.toLowerCase() === user.displayName.toLowerCase())
+      ) || employees[0]
+    );
+  }, [employees, user]);
+
+  // Check if a record belongs to the current user
+  const isMyRecord = (record: AttendanceRecord) => {
+    if (currentEmployee) {
+      if (record.employeeId && currentEmployee.id && record.employeeId === currentEmployee.id) return true;
+      if (record.employeeNik && currentEmployee.nik && record.employeeNik === currentEmployee.nik) return true;
+      if (record.employeeName && currentEmployee.name && record.employeeName.toLowerCase() === currentEmployee.name.toLowerCase()) return true;
+    }
+    if (user?.uid && record.employeeId === user.uid) return true;
+    if (user?.nik && record.employeeNik === user.nik) return true;
+    if (user?.displayName && record.employeeName.toLowerCase() === user.displayName.toLowerCase()) return true;
+    return false;
+  };
+
   // Filter States
   const [periodFilter, setPeriodFilter] = useState<'all' | 'today' | '7days' | 'month'>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
@@ -51,7 +81,7 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
     return Array.from(set);
   }, [attendances]);
 
-  // Filtered Records
+  // Filtered Records (Strictly personal for Karyawan role)
   const filteredAttendances = useMemo(() => {
     const now = new Date();
     const todayStr = now.toISOString().slice(0, 10);
@@ -59,24 +89,27 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
     const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
 
     return attendances.filter((record) => {
+      // 1. Role Karyawan: STRICTLY only display their own attendance
+      if (isKaryawan) {
+        if (!isMyRecord(record)) return false;
+      } else if (onlyMyAttendance) {
+        // Manager optionally filtered to own attendance
+        if (!isMyRecord(record)) return false;
+      }
+
       // Period filter
       if (periodFilter === 'today' && record.date !== todayStr) return false;
       if (periodFilter === '7days' && record.date < sevenDaysAgo) return false;
       if (periodFilter === 'month' && record.date < thirtyDaysAgo) return false;
 
-      // Department filter
-      if (departmentFilter !== 'all' && record.department !== departmentFilter) return false;
+      // Department filter (only for Manager viewing all employees)
+      if (!isKaryawan && departmentFilter !== 'all' && record.department !== departmentFilter) return false;
 
       // Status filter
       if (statusFilter !== 'all' && record.status !== statusFilter) return false;
 
       // Type filter
       if (typeFilter !== 'all' && record.type !== typeFilter) return false;
-
-      // Only My Attendance filter (for Karyawan personal view)
-      if (onlyMyAttendance && user?.nik) {
-        if (record.employeeNik !== user.nik && record.employeeId !== user.uid) return false;
-      }
 
       // Search Query
       if (searchQuery.trim()) {
@@ -89,7 +122,18 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
 
       return true;
     });
-  }, [attendances, periodFilter, departmentFilter, statusFilter, typeFilter, searchQuery]);
+  }, [
+    attendances,
+    isKaryawan,
+    currentEmployee,
+    user,
+    onlyMyAttendance,
+    periodFilter,
+    departmentFilter,
+    statusFilter,
+    typeFilter,
+    searchQuery,
+  ]);
 
   // KPI Calculations
   const stats = useMemo(() => {
@@ -129,7 +173,11 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
           ? '30 Hari Terakhir'
           : 'Semua Periode';
 
-      exportAttendancesToExcel(filteredAttendances, periodLabel, officeSetting.name);
+      const subjectName = isKaryawan
+        ? `${currentEmployee?.name || user?.displayName || 'Karyawan'} (Pribadi)`
+        : officeSetting.name;
+
+      exportAttendancesToExcel(filteredAttendances, periodLabel, subjectName);
     } finally {
       setTimeout(() => setIsExporting(false), 600);
     }
@@ -145,11 +193,32 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
               <FileSpreadsheet className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white tracking-tight">
-                Rekapitulasi Kehadiran & Laporan Absensi
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold text-white tracking-tight">
+                  {isKaryawan ? 'Rekapitulasi Kehadiran Pribadi' : 'Rekapitulasi Kehadiran & Laporan Absensi'}
+                </h2>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
+                    isKaryawan
+                      ? 'bg-[#B4E0E8]/20 text-[#B4E0E8] border-[#B4E0E8]/40'
+                      : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                  }`}
+                >
+                  {isKaryawan ? 'Role Karyawan • Data Mandiri' : 'Role Manager • Semua Karyawan'}
+                </span>
+              </div>
               <p className="text-xs text-slate-300 mt-0.5">
-                Sinkronisasi data kehadiran harian real-time via Firebase Firestore
+                {isKaryawan ? (
+                  <>
+                    Menampilkan rekapitulasi data absensi diri sendiri untuk{' '}
+                    <span className="text-[#B4E0E8] font-bold">
+                      {currentEmployee?.name || user?.displayName}
+                    </span>{' '}
+                    {currentEmployee?.nik ? `(NIK: ${currentEmployee.nik})` : ''}
+                  </>
+                ) : (
+                  'Sinkronisasi data kehadiran harian seluruh karyawan real-time via Firebase Firestore'
+                )}
               </p>
             </div>
           </div>
@@ -161,7 +230,13 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
           className="px-5 py-3 rounded-2xl bg-[#B4E0E8] hover:bg-white text-[#011E4D] font-bold text-sm shadow-lg shadow-[#B4E0E8]/20 transition flex items-center gap-2.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
         >
           <Download className="w-4 h-4" />
-          <span>{isExporting ? 'Membuat File Excel...' : 'Ekspor ke Excel (.xlsx)'}</span>
+          <span>
+            {isExporting
+              ? 'Membuat File Excel...'
+              : isKaryawan
+              ? 'Ekspor Absensi Saya (.xlsx)'
+              : 'Ekspor ke Excel (.xlsx)'}
+          </span>
         </button>
       </div>
 
@@ -239,19 +314,21 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
               <option value="month">30 Hari Terakhir</option>
             </select>
 
-            {/* Departemen */}
-            <select
-              value={departmentFilter}
-              onChange={(e) => setDepartmentFilter(e.target.value)}
-              className="bg-[#00112C] border border-[#093478] rounded-xl px-3 py-2 text-xs text-slate-200 font-medium focus:outline-none focus:border-[#B4E0E8] cursor-pointer"
-            >
-              <option value="all">Semua Departemen</option>
-              {departments.map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
-                </option>
-              ))}
-            </select>
+            {/* Departemen (Hanya untuk Manager) */}
+            {!isKaryawan && (
+              <select
+                value={departmentFilter}
+                onChange={(e) => setDepartmentFilter(e.target.value)}
+                className="bg-[#00112C] border border-[#093478] rounded-xl px-3 py-2 text-xs text-slate-200 font-medium focus:outline-none focus:border-[#B4E0E8] cursor-pointer"
+              >
+                <option value="all">Semua Departemen</option>
+                {departments.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                ))}
+              </select>
+            )}
 
             {/* Status */}
             <select
@@ -276,18 +353,22 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
               <option value="dinas">Dinas Luar</option>
             </select>
 
-            {/* Toggle Personal / All (Useful for Karyawan) */}
-            {user?.nik && (
+            {/* Role indicator / Filter personal */}
+            {isKaryawan ? (
+              <div className="px-3 py-2 rounded-xl text-xs font-bold bg-[#B4E0E8] text-[#011E4D] shadow-sm flex items-center gap-1.5 whitespace-nowrap">
+                <span>👤 Absensi Diri Sendiri</span>
+              </div>
+            ) : (
               <button
                 type="button"
                 onClick={() => setOnlyMyAttendance(!onlyMyAttendance)}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                   onlyMyAttendance
                     ? 'bg-[#B4E0E8] text-[#011E4D] shadow-sm'
                     : 'bg-[#00112C] text-slate-300 hover:bg-[#B4E0E8] hover:text-[#011E4D] border border-[#093478] hover:border-[#B4E0E8]'
                 }`}
               >
-                <span>{onlyMyAttendance ? '👤 Presensi Saya' : '👥 Semua Karyawan'}</span>
+                <span>{onlyMyAttendance ? '👤 Presensi Saya Saja' : '👥 Semua Karyawan'}</span>
               </button>
             )}
           </div>
@@ -314,7 +395,9 @@ export function DashboardRecap({ attendances, officeSetting }: DashboardRecapPro
               {filteredAttendances.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-slate-400">
-                    Tidak ada catatan presensi yang sesuai dengan filter.
+                    {isKaryawan
+                      ? 'Belum ada catatan presensi untuk akun Anda pada periode ini. Silakan catat presensi di tab Kios Presensi (Absen).'
+                      : 'Tidak ada catatan presensi yang sesuai dengan filter.'}
                   </td>
                 </tr>
               ) : (

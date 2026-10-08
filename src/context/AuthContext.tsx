@@ -16,6 +16,7 @@ export interface AppUser {
   role: UserRole; // 'Manager' | 'Karyawan'
   nik?: string;
   department?: string;
+  employeeId?: string;
 }
 
 interface AuthContextType {
@@ -24,6 +25,8 @@ interface AuthContextType {
   loading: boolean;
   loginWithGoogle: () => Promise<void>;
   loginWithEmployee: (employee: Employee) => void;
+  setRole: (role: UserRole) => void;
+  linkEmployee: (employee: Employee) => void;
   logout: () => Promise<void>;
 }
 
@@ -108,6 +111,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('presensi_auth_user', JSON.stringify(appUser));
   };
 
+  const setRole = (newRole: UserRole) => {
+    setUser((prev) => {
+      if (!prev) return null;
+      const updated = { ...prev, role: newRole };
+      localStorage.setItem('presensi_auth_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const linkEmployee = (employee: Employee) => {
+    setUser((prev) => {
+      if (!prev) return null;
+      const updated: AppUser = {
+        ...prev,
+        nik: employee.nik,
+        department: employee.department,
+        employeeId: employee.id,
+        role: employee.systemRole || prev.role,
+        displayName: employee.name || prev.displayName,
+      };
+      localStorage.setItem('presensi_auth_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const logout = async () => {
     try {
       await fbSignOut(auth);
@@ -128,6 +156,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         loginWithGoogle,
         loginWithEmployee,
+        setRole,
+        linkEmployee,
         logout,
       }}
     >

@@ -12,7 +12,7 @@ import {
   limit,
 } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from './firebase';
-import { AttendanceRecord, Employee, OfficeSetting, NotificationSetting } from '../types';
+import { AttendanceRecord, Employee, OfficeSetting, NotificationSetting, LeaveRequest, LeaveStatus } from '../types';
 
 // Default Office Coordinates (Jakarta CBD / Monas Area)
 export const DEFAULT_OFFICE_SETTING: OfficeSetting = {
@@ -211,3 +211,83 @@ export async function updateOfficeSettings(setting: Partial<OfficeSetting>): Pro
     handleFirestoreError(error, OperationType.WRITE, path);
   }
 }
+
+/**
+ * Subscribe to all Leave Requests
+ */
+export function subscribeLeaveRequests(callback: (requests: LeaveRequest[]) => void): () => void {
+  const q = query(collection(db, 'leaveRequests'), orderBy('createdAt', 'desc'), limit(500));
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const list: LeaveRequest[] = [];
+      snapshot.forEach((d) => {
+        list.push({ id: d.id, ...d.data() } as LeaveRequest);
+      });
+      callback(list);
+    },
+    (error) => {
+      handleFirestoreError(error, OperationType.GET, 'leaveRequests');
+    }
+  );
+}
+
+/**
+ * Create a new Leave Request
+ */
+export async function createLeaveRequest(
+  request: Omit<LeaveRequest, 'id' | 'createdAt' | 'updatedAt' | 'status'> & { status?: LeaveStatus }
+): Promise<string> {
+  const id = `leave-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  const path = `leaveRequests/${id}`;
+  try {
+    const payload: Record<string, any> = {
+      ...request,
+      status: request.status || 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await setDoc(doc(db, 'leaveRequests', id), payload);
+    return id;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.CREATE, path);
+  }
+}
+
+/**
+ * Update Leave Request Status (Approve / Reject)
+ */
+export async function updateLeaveRequestStatus(
+  id: string,
+  status: LeaveStatus,
+  reviewedBy: string,
+  reviewNotes?: string
+): Promise<void> {
+  const path = `leaveRequests/${id}`;
+  try {
+    const payload: Record<string, any> = {
+      status,
+      reviewedBy,
+      updatedAt: new Date().toISOString(),
+    };
+    if (reviewNotes !== undefined) {
+      payload.reviewNotes = reviewNotes;
+    }
+    await updateDoc(doc(db, 'leaveRequests', id), payload);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
+  }
+}
+
+/**
+ * Delete / Cancel Leave Request
+ */
+export async function deleteLeaveRequest(id: string): Promise<void> {
+  const path = `leaveRequests/${id}`;
+  try {
+    await deleteDoc(doc(db, 'leaveRequests', id));
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, path);
+  }
+}
+
